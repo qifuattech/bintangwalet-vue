@@ -530,6 +530,33 @@ export default {
         });
       });
     },
+    printSj() {
+      this.invoice.dialog = true;
+      this.loadPrintSj();
+    },
+    async loadPrintSj() {
+      await axios
+        .post("penjualan/transaksi/print", {
+          noBukti: this.data.noTransaksi,
+        })
+        .then((res) => {
+          if (res.status != 200) {
+            this.$notify({
+              type: "error",
+              text: res.data.message,
+            });
+            return;
+          }
+          this.invoice.items = res.data.data;
+          setTimeout(() => {
+            window.print();
+          }, 1000);
+          setTimeout(() => {
+            this.invoice.dialog = false;
+          }, 1000);
+          this.resetAll();
+        });
+    },
     printInvoice() {
       this.invoice.dialog = true;
       this.loadPrintInvoice();
