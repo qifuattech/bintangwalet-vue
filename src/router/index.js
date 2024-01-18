@@ -43,6 +43,8 @@ import InputKas from '../views/Kas/InputKas.vue'
 
 import Laporan from  '../views/Laporan/LaporanView.vue'
 
+import TestExcel from '../views/ZZ/TestExcel.vue'
+
 // import axios from "axios";
 
 Vue.use(VueRouter);
@@ -273,6 +275,14 @@ const routes = [
     path: "/laporan",
     name: "Laporan",
     component: Laporan,
+    meta: {
+      auth: true,
+    },
+  },
+  {
+    path: "/zz/testexcel",
+    name: "TestExcel",
+    component: TestExcel,
     meta: {
       auth: true,
     },
