@@ -123,7 +123,25 @@
               </v-data-table>
             </v-card>
             <div class="d-flex justify-end mt-4">
-              <v-btn color="success" @click="create()">SIMPAN</v-btn>
+              <v-btn
+                color="primary"
+                @click="printSj()"
+                class="mr-3"
+                v-if="saved.status"
+                ><v-icon class="mr-2">mdi-printer-check</v-icon> Cetak Surat
+                Jalan</v-btn
+              >
+              <v-btn
+                color="primary"
+                @click="printInvoice()"
+                class="mr-3"
+                v-if="saved.status"
+                ><v-icon class="mr-2">mdi-printer-check</v-icon>Cetak
+                Invoice</v-btn
+              >
+              <v-btn color="success" @click="create()" :disabled="!isValid"
+                ><v-icon class="mr-2">mdi-floppy</v-icon> SIMPAN</v-btn
+              >
             </div>
           </v-card-text>
         </v-card>
@@ -169,34 +187,34 @@
       v-model="suratjalan.dialog"
       scrollable
       fullscreen
-      persistent
       :overlay="false"
       max-width="500px"
       transition="dialog-transition"
     >
       <v-card elevation="0">
         <v-col class="pa-0">
-          <v-card-title class="py-1 d-flex justify-start">
-            <div class="text-h4">BINTANG WALET</div>
+          <v-card-title class="py-1 d-flex justify-space-around">
+            <div class="text-h4"><strong>BINTANG WALET</strong></div>
+            <v-spacer></v-spacer>
+            <v-chip label outlined color="black" large
+              ><div class="text-h5">SURAT JALAN</div></v-chip
+            >
           </v-card-title>
+          <hr />
           <v-card-text>
             <!-- HEADER -->
             <table>
               <tr>
                 <td>No. Nota</td>
-                <td>: {{ invoice.items[0].no_bukti }}</td>
-              </tr>
-              <tr>
-                <td>Pembayaran</td>
-                <td>: {{ invoice.items[0].pembayaran.toUpperCase() }}</td>
+                <td>: {{ suratjalan.items.no_sj }}</td>
               </tr>
               <tr>
                 <td>Customer</td>
-                <td>: {{ invoice.items[0].nama }}</td>
+                <td>: {{ suratjalan.items.nama }}</td>
               </tr>
               <tr>
                 <td>Tanggal</td>
-                <td>: {{ formatDateTime(invoice.items[0].tgl_update) }}</td>
+                <td>: {{ formatDate(suratjalan.items.tgl_kirim) }}</td>
               </tr>
             </table>
 
@@ -207,58 +225,34 @@
                 <tr>
                   <th>No.</th>
                   <th>Nama Barang</th>
+                  <th>Unit</th>
                   <th>Jumlah</th>
-                  <th>Harga</th>
-                  <th>Diskon Item</th>
-                  <th>Subtotal</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in invoice.items" :key="item.urut">
+                <tr
+                  v-for="(item, index) in suratjalan.items.detail"
+                  :key="index"
+                >
                   <td>{{ index + 1 }}</td>
                   <td>{{ item.nama_bahan }}</td>
+
+                  <td align="right">{{ item.unit }}</td>
                   <td align="right">{{ formatNumber(item.jumlah) }}</td>
-                  <td align="right">{{ formatNumber(item.rp_jual) }}</td>
-                  <td align="right">{{ formatNumber(item.diskon_item) }}</td>
-                  <td align="right">{{ formatNumber(item.total_item_net) }}</td>
                 </tr>
                 <tr>
-                  <td align="right" colspan="5">Subtotal</td>
+                  <td align="right" colspan="3">Total Qty</td>
                   <td align="right">
-                    <strong> {{ formatNumber(invoice.items[0].total) }}</strong>
+                    <strong> {{ formatNumber(suratjalan.items.tot_qty)}}</strong>
                   </td>
                 </tr>
-                <tr>
-                  <td align="right" colspan="5">Potongan</td>
-                  <td align="right">
-                    <strong>{{
-                      formatNumber(invoice.items[0].potongan)
-                    }}</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="5">Total</td>
-                  <td align="right">
-                    <strong>{{
-                      formatNumber(invoice.items[0].total_net)
-                    }}</strong>
-                  </td>
-                </tr>
-                <!-- <tr>
-                  <td align="right" colspan="5">Bayar</td>
-                  <td align="right">{{ formatNumber(invoice.items[0].bayar) }}</td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="5">Kembali</td>
-                  <td align="right">{{ formatNumber(invoice.items[0].total) }}</td>
-                </tr> -->
               </tbody>
             </table>
             <!-- TOTAL -->
 
             <div class="d-flex justify-end">
               <v-col cols="3">
-                <div class="d-flex justify-center">Kasir/Admin</div>
+                <div class="d-flex justify-center">Admin</div>
                 <v-spacer class="my-12"></v-spacer>
                 <div class="d-flex justify-center">
                   <u
@@ -285,9 +279,14 @@
     >
       <v-card elevation="0">
         <v-col class="pa-0">
-          <v-card-title class="py-1 d-flex justify-start">
-            <div class="text-h4">BINTANG WALET</div>
+          <v-card-title class="py-1 d-flex justify-space-around">
+            <div class="text-h4"><strong>BINTANG WALET</strong></div>
+            <v-spacer></v-spacer>
+            <v-chip label outlined color="black" large
+              ><div class="text-h5">NOTA PENJUALAN</div></v-chip
+            >
           </v-card-title>
+          <hr />
           <v-card-text>
             <!-- HEADER -->
             <table>
@@ -418,6 +417,7 @@ export default {
         diskon: "",
         bayar: "",
         potongan: "",
+        user: this.$store.state.auth.user.name,
       },
       transaksi: {
         dialog: false,
@@ -462,6 +462,11 @@ export default {
             kembali: "",
           },
         ],
+      },
+      saved: {
+        status: false,
+        noSj: "",
+        noTransaksi: "",
       },
     };
   },
@@ -513,31 +518,39 @@ export default {
           swal("Gagal", res.data.message, "error");
           return;
         }
-        swal("Sukses", res.data.message, "success", {
-          buttons: {
-            cetak: true,
-          },
-        }).then((value) => {
-          switch (value) {
-            case "cetak":
-              this.printInvoice();
-              break;
+        swal("Sukses", res.data.message, "success");
+        this.saved.status = true;
+        this.saved.noSj = res.data.no_bukti;
+        this.saved.noTransaksi = this.data.noTransaksi;
+        this.resetAll();
+        // swal("Sukses", res.data.message, "success", {
+        //   buttons: {
+        //     cetak: true,
+        //   },
+        // }).then((value) => {
+        //   switch (value) {
+        //     case "cetak":
+        //       this.printSj();
+        //       this.printInvoice();
+        //       break;
 
-            default:
-              this.printInvoice();
-              break;
-          }
-        });
+        //     default:
+        //       this.printSj();
+        //       this.printInvoice();
+        //       break;
+        //   }
+        // });
       });
     },
     printSj() {
-      this.invoice.dialog = true;
+      this.suratjalan.dialog = true;
       this.loadPrintSj();
     },
     async loadPrintSj() {
+      console.log("LOAD PRINT SJ");
       await axios
-        .post("penjualan/transaksi/print", {
-          noBukti: this.data.noTransaksi,
+        .post("penjualan/pengiriman/bysj", {
+          noSj: this.saved.noSj,
         })
         .then((res) => {
           if (res.status != 200) {
@@ -547,14 +560,13 @@ export default {
             });
             return;
           }
-          this.invoice.items = res.data.data;
+          this.suratjalan.items = res.data.data;
           setTimeout(() => {
             window.print();
           }, 1000);
           setTimeout(() => {
-            this.invoice.dialog = false;
+            this.suratjalan.dialog = false;
           }, 1000);
-          this.resetAll();
         });
     },
     printInvoice() {
@@ -564,7 +576,7 @@ export default {
     async loadPrintInvoice() {
       await axios
         .post("penjualan/transaksi/print", {
-          noBukti: this.data.noTransaksi,
+          noBukti: this.saved.noTransaksi,
         })
         .then((res) => {
           if (res.status != 200) {
@@ -581,15 +593,29 @@ export default {
           setTimeout(() => {
             this.invoice.dialog = false;
           }, 1000);
-          this.resetAll();
         });
     },
     resetAll() {
       this.data.kodeCustomer = "";
       this.data.namaCustomer = "";
+      this.data.alamatCustomer = "";
       this.data.tanggalTrans = "";
       this.data.noTransaksi = "";
       this.data.items = [];
+    },
+
+  },
+  computed: {
+    isValid() {
+      if (
+        this.data.items.length > 0 &&
+        this.data.kodeCustomer != "" &&
+        this.data.noTransaksi != ""
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     },
   },
 };
@@ -617,7 +643,7 @@ th {
 }
 .tabledetail th,
 .tabledetail td {
-  padding: 12px 15px;
+  padding: 10px 12px;
 }
 .tabledetail tbody tr td {
   border-bottom: 1px solid #303030;

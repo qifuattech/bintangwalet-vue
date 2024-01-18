@@ -128,39 +128,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-spacer></v-spacer>
-
-      <v-col cols="3">
-        <v-card outlined rounded="lg">
-          <v-card-text>
-            <v-text-field
-              name="name"
-              label="Subtotal"
-              dense
-              outlined
-              readonly
-              :value="subtotal()"
-              background-color="blue-grey lighten-5"
-            ></v-text-field>
-            <v-text-field
-              v-model="data.potongan"
-              label="Potongan"
-              dense
-              outlined
-              background-color="light-blue lighten-5"
-            ></v-text-field>
-            <v-text-field
-              name="name"
-              label="Bayar"
-              readonly
-              dense
-              outlined
-              :value="bayar()"
-              background-color="blue-grey lighten-5"
-            ></v-text-field>
-          </v-card-text>
-        </v-card>
-      </v-col>
+      
     </v-row>
 
     <v-row>
