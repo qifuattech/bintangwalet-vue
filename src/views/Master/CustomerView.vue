@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <div class="text-h5">MASTER CUSTOMER</div>
+        <h2>MASTER CUSTOMER</h2>
       </v-col>
     </v-row>
     <v-divider></v-divider>

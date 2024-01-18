@@ -36,7 +36,8 @@ import ListTransaksiPenjualan from "../views/Penjualan/Transaksi/ListTransaksi.v
 import InputPengirimanPenjualan from "../views/Penjualan/Pengiriman/InputPengiriman.vue";
 import ListPengirimanPenjualan from "../views/Penjualan/Pengiriman/ListPengiriman.vue";
 
-import ReturnPenjualan from "../views/Penjualan/Transaksi/ReturnPenjualan.vue";
+import InputReturnPenjualan from "../views/Penjualan/Return/InputReturn.vue";
+import ListReturnPenjualan from "../views/Penjualan/Return/ListReturn.vue";
 
 import InputKas from '../views/Kas/InputKas.vue'
 
@@ -230,8 +231,16 @@ const routes = [
   },
   {
     path: "/penjualan/return",
-    name: "ReturnPenjualan",
-    component: ReturnPenjualan,
+    name: "ListReturnPenjualan",
+    component: ListReturnPenjualan,
+    meta: {
+      auth: true,
+    },
+  },
+  {
+    path: "/penjualan/return/input",
+    name: "InputReturnPenjualan",
+    component: InputReturnPenjualan,
     meta: {
       auth: true,
     },

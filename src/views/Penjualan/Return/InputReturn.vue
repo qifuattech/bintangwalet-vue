@@ -2,12 +2,12 @@
   <v-container>
     <v-row>
       <v-col class="d-flex justify-start">
-        <!-- <div>
-          <v-btn color="primary" text to="/pembelian/po" class="mr-3"
-            ><v-icon x-large>mdi-arrow-left-bold</v-icon></v-btn
+        <div>
+          <v-btn color="primary" text to="/penjualan/return" class="mr-3"
+            ><v-icon large>mdi-arrow-left-bold</v-icon></v-btn
           >
-        </div> -->
-        <div class="text-h5 mt-1">INPUT RETUR PENJUALAN</div>
+        </div>
+        <h2 class="mt-1">INPUT RETUR PENJUALAN</h2>
       </v-col>
     </v-row>
     <v-divider></v-divider>
@@ -17,20 +17,6 @@
           <v-card-text>
             <v-row>
               <v-col cols="6">
-                <!-- NO. PO  -->
-                <div class="d-flex justify">
-                  <v-text-field
-                    dense
-                    outlined
-                    label="No. PO (Otomatis)"
-                    readonly
-                    v-model="data.no_po"
-                    background-color="blue-grey lighten-5"
-                  ></v-text-field>
-                  <v-btn class="ml-2" @click="showPo()"
-                    ><v-icon>mdi-eye-outline</v-icon></v-btn
-                  >
-                </div>
                 <!-- TANGGAL -->
                 <v-menu
                   v-model="data.pickerTanggal"
@@ -52,69 +38,30 @@
                       outlined
                       background-color="light-blue lighten-5"
                     ></v-text-field>
+                    <!-- PILIH CUSTOMER -->
+                    <div class="d-flex justify-space-between">
+                      <v-text-field
+                        :value="customer.nama + ' - ' + customer.kode"
+                        class="mr-2"
+                        background-color="white"
+                        dense
+                        outlined
+                        label="Customer"
+                      ></v-text-field>
+                      <v-btn
+                        @click="showCustomer()"
+                        color="light-blue lighten-5"
+                        ><v-icon>mdi-magnify</v-icon></v-btn
+                      >
+                    </div>
                   </template>
                   <v-date-picker
                     v-model="data.tanggal"
                     @input="data.pickerTanggal = false"
                   ></v-date-picker>
                 </v-menu>
-                <v-radio-group
-                  dense
-                  mandatory
-                  v-model="data.jenisBayar"
-                  value="tunai"
-                  vertical
-                >
-                  <v-row>
-                    <v-col cols="6">
-                      <v-radio label="Bagus" value="bagus" dense></v-radio>
-                      <v-radio label="Rusak" value="rusak" dense></v-radio>
-                    </v-col>
-                  </v-row>
-                </v-radio-group>
               </v-col>
               <v-col cols="6">
-                <!-- PILIH CUSTOMER -->
-                <div class="d-flex justify-space-between">
-                  <v-text-field
-                    :value="customer.nama + ' - ' + customer.kode"
-                    class="mr-2"
-                    background-color="white"
-                    dense
-                    outlined
-                    label="Customer"
-                  ></v-text-field>
-                  <v-btn @click="showCustomer()" color="light-blue lighten-5"
-                    ><v-icon>mdi-magnify</v-icon></v-btn
-                  >
-                </div>
-                <!-- TGL KIRIM -->
-                <v-menu
-                  v-model="data.pickerTglKirim"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      label="Tanggal Est. Terima"
-                      :value="formatDate(data.tglKirim)"
-                      append-icon="mdi-calendar"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      dense
-                      outlined
-                      background-color="light-blue lighten-5"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="data.tglKirim"
-                    @input="data.pickerTglKirim = false"
-                  ></v-date-picker>
-                </v-menu>
                 <v-textarea
                   v-model="data.keterangan"
                   rows="3"
@@ -128,7 +75,6 @@
           </v-card-text>
         </v-card>
       </v-col>
-      
     </v-row>
 
     <v-row>
@@ -143,7 +89,8 @@
                   @click="showForm()"
                   class="mr-2"
                   :disabled="customer.kode == ''"
-                  >Tambah Data<v-icon>mdi-plus-thick</v-icon></v-btn
+                  small
+                  ><v-icon>mdi-plus-thick</v-icon>Tambah Data</v-btn
                 >
               </div>
               <div
@@ -189,10 +136,11 @@
               </v-data-table>
             </v-card>
             <v-divider></v-divider>
-            <div class="d-flex justify-end mt-2">
-              <v-btn color="primary" @click="resetAll()" class="mr-2"
-                >BARU</v-btn
+            <div class="d-flex justify-space-around mt-2">
+              <v-btn @click="resetAll()" class="mr-2"
+                ><v-icon>mdi-refresh</v-icon> BARU</v-btn
               >
+              <v-spacer></v-spacer>
               <v-btn
                 color="warning"
                 @click="updateData()"
@@ -205,7 +153,7 @@
                 @click="createData()"
                 v-else
                 :disabled="!staValid()"
-                >SIMPAN <v-icon>mdi-floppy</v-icon>
+                ><v-icon>mdi-floppy</v-icon>SIMPAN
               </v-btn>
             </div>
           </v-card-text>
@@ -226,12 +174,13 @@
     <!-- FORM TAMBAH DATA -->
     <v-dialog
       v-model="form.dialog"
-      max-width="1000px"
+      max-width="500px"
       transition="dialog-transition"
     >
       <v-card outlined class="pb-4">
-        <v-card-title> Form Detail </v-card-title>
-        <v-card-text>
+        <v-card-title class="py-2"> Form Detail </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text class="mt-2">
           <v-form v-model="form.isValid">
             <div class="d-flex justify-space-between">
               <v-text-field
@@ -256,7 +205,7 @@
             ></v-textarea>
 
             <v-row class="d-flex justify-space-between">
-              <v-col cols="6">
+              <v-col >
                 <v-text-field
                   v-model="form.jumlah"
                   :rules="rules.jumlah"
@@ -283,26 +232,6 @@
                   type="number"
                   background-color="blue-grey lighten-5"
                   outlined
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6">
-                <v-text-field
-                  label="Stok Sekarang"
-                  v-model="barang.stok"
-                  dense
-                  outlined
-                  type="number"
-                  readonly
-                  background-color="blue-grey lighten-5"
-                ></v-text-field>
-                <v-text-field
-                  :rules="rules.rp_jual"
-                  v-model="barang.rp_jual"
-                  label="Harga Jual"
-                  dense
-                  outlined
-                  type="number"
-                  background-color="light-blue lighten-5"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -347,17 +276,6 @@
       </v-dialog>
     </v-dialog>
 
-    <!-- DIALOG PO -->
-    <v-dialog
-      v-model="po.dialog"
-      max-width="1000px"
-      transition="dialog-transition"
-    >
-      <v-card outlined>
-        <list-purchase-order :staPilih="true" @po="getPo"></list-purchase-order>
-      </v-card>
-    </v-dialog>
-
     <notifications position="bottom right"></notifications>
   </v-container>
 </template>
@@ -367,10 +285,9 @@ import CustomerView from "@/views/Master/CustomerView.vue";
 import BarangView from "@/views/Master/BarangView.vue";
 import axios from "axios";
 import swal from "sweetalert";
-import ListPurchaseOrder from "@/views/Pembelian/PurchaseOrder/ListPurchasingOrder.vue";
 
 export default {
-  components: { CustomerView, BarangView, ListPurchaseOrder },
+  components: { CustomerView, BarangView },
   data() {
     return {
       data: {
@@ -385,12 +302,6 @@ export default {
             align: "right",
             divider: true,
           },
-        //   {
-        //     text: "HARGA JUAL (Rp)",
-        //     value: "rp_jual",
-        //     align: "right",
-        //     divider: true,
-        //   },
           {
             text: "SUBTOTAL",
             value: "subtotal",
@@ -404,7 +315,7 @@ export default {
 
         loading: false,
         search: "",
-        kodecustomer: "",
+        kodeCustomer: "",
         pickerTanggal: false,
         pickerTglKirim: false,
         tanggal: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
@@ -415,7 +326,8 @@ export default {
           .substr(0, 10),
         keterangan: "",
         potongan: 0,
-        no_po: "",
+        no_retur: "",
+        user: this.$store.state.auth.user.name
       },
       customer: {
         dialog: false,
@@ -436,11 +348,10 @@ export default {
         indexEdit: "",
       },
       rules: {
-        // kode_bahan: [(v) => v != !null || "Pilih Nama Bahan"],
+        kode_bahan: [(v) => v != "" || "Pilih Nama Bahan"],
         jumlah: [(v) => v > 0 || "Jumlah harus lebih dari 0"],
         hargaBeli: [(v) => v > 0 || "Harga Beli harus lebih dari 0"],
         keterangan: [(v) => v > "" || "Keterangan Harus Diisi"],
-        rp_jual: [(v) => v > 0 || "Harga Jual harus lebih dari 0"],
       },
       barang: {
         dialog: false,
@@ -464,10 +375,10 @@ export default {
     };
   },
   mounted() {
-    if (this.$route.query.nopo != "") {
-      this.data.no_po = this.$route.query.nopo;
-      this.loadPo();
-    }
+    // if (this.$route.query.no_retur != "") {
+    //   this.data.no_retur = this.$route.query.no_retur;
+    //   this.loadRetur();
+    // }
   },
   methods: {
     showUpdateItem(index) {
@@ -521,10 +432,10 @@ export default {
       this.po.dialog = false;
       this.loadPo();
     },
-    async loadPo() {
+    async loadRetur() {
       await axios
-        .post("pembelian/po/bypo", {
-          no_po: this.data.no_po,
+        .post("penjualan/retur/byretur", {
+          no_retur: this.data.no_retur,
         })
         .then((res) => {
           if (res.status != 200) {
@@ -538,7 +449,7 @@ export default {
           this.data.items = res.data.dataDetail;
           this.customer.kode = res.data.dataDoc.kd_customer;
           this.customer.nama = res.data.dataDoc.nama;
-          this.data.kodecustomer = res.data.dataDoc.kd_customer;
+          this.data.kodeCustomer = res.data.dataDoc.kd_customer;
           this.data.tanggal = res.data.dataDoc.tgl_po;
           this.data.tglKirim = res.data.dataDoc.tgl_kirim;
           for (let i = 0; i < res.data.dataDetail.length; i++) {
@@ -555,7 +466,7 @@ export default {
     getCustomer(value) {
       this.customer.kode = value.kode;
       this.customer.nama = value.nama;
-      this.data.kodecustomer = value.kode;
+      this.data.kodeCustomer = value.kode;
       this.customer.dialog = false;
     },
     showForm() {
@@ -605,7 +516,7 @@ export default {
     },
     resetAll() {
       this.staView = false;
-      this.data.kodecustomer = "";
+      this.data.kodeCustomer = "";
       this.data.keterangan = "";
       this.data.potongan = 0;
       this.data.no_po = "";
@@ -658,7 +569,7 @@ export default {
     },
 
     async createData() {
-      if (this.data.kodecustomer == "") {
+      if (this.data.kodeCustomer == "") {
         this.$notify({
           type: "error",
           text: "Mohon isi customer",
@@ -667,7 +578,7 @@ export default {
       }
       this.data.loading = true;
       await axios
-        .post("pembelian/po/create", this.data)
+        .post("penjualan/return/create", this.data)
         .then((res) => {
           if (res.status != 200) {
             this.$notify({ type: "error", text: res.error });
@@ -675,7 +586,7 @@ export default {
           }
           swal("Sukses", res.data.message, "success");
           this.data.items = [];
-          this.data.kodecustomer = "";
+          this.data.kodeCustomer = "";
           this.customer.kode = "";
           this.customer.nama = "";
           this.resetAll();
@@ -687,7 +598,7 @@ export default {
     },
 
     async updateData() {
-      if (this.data.kodecustomer == "") {
+      if (this.data.kodeCustomer == "") {
         this.$notify({
           type: "error",
           text: "Mohon isi customer",
@@ -704,7 +615,7 @@ export default {
           }
           swal("Sukses", res.data.message, "success");
           this.data.items = [];
-          this.data.kodecustomer = "";
+          this.data.kodeCustomer = "";
           this.customer.kode = "";
           this.customer.nama = "";
           this.resetAll();

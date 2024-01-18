@@ -10,8 +10,6 @@
       <v-col cols="6">
         <v-card>
           <v-card-title class="py-3 d-flex justify-space-around">
-            <div>LAPORAN</div>
-            <v-spacer></v-spacer>
             <v-menu
               v-model="periode.pickerTanggal1"
               :close-on-content-click="false"
@@ -22,7 +20,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
-                  label="Tanggal"
+                  label="Tanggal Awal"
                   :value="formatDate(periode.tanggal1)"
                   append-icon="mdi-calendar"
                   readonly
@@ -51,7 +49,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
-                  label="Tanggal"
+                  label="Tanggal Akhir"
                   :value="formatDate(periode.tanggal2)"
                   append-icon="mdi-calendar"
                   readonly
@@ -79,6 +77,36 @@
                 :fields="stok_fields"
                 worksheet="Data Stock"
                 name="Data Stock.xls"
+              >
+                <v-btn color="success" rounded
+                  >Excel<v-icon>mdi-table-arrow-down</v-icon></v-btn
+                >
+              </download-excel>
+            </div>
+            <v-divider class="my-2"></v-divider>
+            <div class="d-flex justify-space-around align-center">
+              <div>Laporan Penerimaan</div>
+              <v-spacer></v-spacer>
+              <download-excel
+                :fetch="labarugiFetchData"
+                :fields="labarugi_fields"
+                worksheet="Data Penerimaan"
+                name="Data Penerimaan.xls"
+              >
+                <v-btn color="success" rounded
+                  >Excel<v-icon>mdi-table-arrow-down</v-icon></v-btn
+                >
+              </download-excel>
+            </div>
+            <v-divider class="my-2"></v-divider>
+            <div class="d-flex justify-space-around align-center">
+              <div>Laporan Penjualan</div>
+              <v-spacer></v-spacer>
+              <download-excel
+                :fetch="labarugiFetchData"
+                :fields="labarugi_fields"
+                worksheet="Data Penjualan"
+                name="Data Penjualan.xls"
               >
                 <v-btn color="success" rounded
                   >Excel<v-icon>mdi-table-arrow-down</v-icon></v-btn
@@ -179,6 +207,28 @@ export default {
       });
       //   this.loading = false;
       return res.data.data;
+    },
+  },
+  computed: {
+    tanggal1() {
+      return this.periode.tanggal1;
+    },
+    tanggal2() {
+      return this.periode.tanggal2;
+    },
+  },
+  watch: {
+    tanggal1: function (value1, value2) {
+      if (this.periode.tanggal1 > this.periode.tanggal2) {
+        alert("Tanggal Awal Melebihi Tanggal Akhir");
+        this.periode.tanggal1 = value2;
+      }
+    },
+    tanggal2: function (value1, value2) {
+      if (this.periode.tanggal1 > this.periode.tanggal2) {
+        alert("Tanggal Awal Melebihi Tanggal Akhir");
+        this.periode.tanggal2 = value2;
+      }
     },
   },
 };
