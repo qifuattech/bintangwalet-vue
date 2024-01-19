@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <div class="text-h5">INPUT TRANSAKSI KAS</div>
+        <h2>INPUT TRANSAKSI ARUS KAS</h2>
       </v-col>
     </v-row>
     <v-divider></v-divider>
@@ -328,7 +328,7 @@
         <v-card-title>
           DATA PIUTANG CUSTOMER : {{ this.data.nama_akun }}
           <v-spacer></v-spacer>
-          <strong> {{ data.jumlah }}</strong>
+          <strong> {{ customer.sisaJumlah }}</strong>
         </v-card-title>
         <v-card-text>
           <v-card outlined>
@@ -346,6 +346,24 @@
                   ><v-icon large>mdi-pencil-box-outline</v-icon></v-btn
                 >
               </template>
+              <template v-slot:item.nilai="props">
+                <v-edit-dialog
+                  :return-value.sync="props.item.nilai"
+                  @save="saveNilai(props.index, props.item.nilai)"
+                >
+                  {{ props.item.nilai }}
+                  <template v-slot:input>
+                    <v-text-field
+                      v-model="props.item.nilai"
+                      type="number"
+                      label="Edit"
+                      single-line
+                      dense
+                      counter
+                    ></v-text-field>
+                  </template>
+                </v-edit-dialog>
+              </template>
             </v-data-table>
           </v-card>
           <div class="d-flex justify-end">
@@ -356,51 +374,6 @@
               >OK</v-btn
             >
           </div>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-    <v-dialog
-      v-model="customer.dialogBayar"
-      max-width="200px"
-      transition="dialog-transition"
-    >
-      <v-card>
-        <v-card-title> 0 </v-card-title>
-        <v-card-text>
-          <v-text-field
-            label="Rp. Sisa"
-            :value="customer.itemsOutstand[customer.indexOutstand].sisa"
-            dense
-            outlined
-            readonly
-            background-color="blue-grey lighten-5"
-          ></v-text-field>
-          <v-text-field
-            label="Rp. Bayar"
-            v-model="customer.nilaiBayar"
-            dense
-            outlined
-            background-color="light-blue lighten-5"
-          ></v-text-field>
-
-          <v-text-field
-            label="Rp. Saldo Sisa"
-            :value="
-              customer.itemsOutstand[customer.indexOutstand].sisa -
-              customer.nilaiBayar
-            "
-            dense
-            outlined
-            background-color="light-blue lighten-5"
-          ></v-text-field>
-          <v-text-field
-            label="No. Bukti"
-            v-model="customer.buktiBayar"
-            dense
-            outlined
-            background-color="light-blue lighten-5"
-          ></v-text-field>
-          <v-btn color="success" @click="setBayar()">SET</v-btn>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -488,8 +461,7 @@ export default {
         searchOutstand: "",
         dialogBayar: false,
         indexOutstand: 0,
-        nilaiBayar: 0,
-        buktiBayar: "",
+        sisaJumlah: 0,
       },
       supplier: {
         dialog: false,
@@ -600,7 +572,7 @@ export default {
           this.supplier.dialog = true;
           break;
         default:
-          this.$notify({ type: "success", text: "General" });
+          this.$notify({ type: "warning", text: "Silahkan Pilih Kategori" });
           break;
       }
     },
@@ -630,6 +602,7 @@ export default {
       }
       if (this.customer.listOutstand == true && this.data.kode_akun != "") {
         this.customer.dialogOutstand = true;
+        this.customer.sisaJumlah = this.data.jumlah;
         await axios
           .post("penjualan/piutang/customer", {
             kode: this.data.kode_akun,
@@ -646,21 +619,14 @@ export default {
           });
       }
     },
-    showBayar(index) {
-      this.customer.indexOutstand = index;
-      this.customer.dialogBayar = true;
-      this.customer.nilaiBayar = this.customer.itemsOutstand[index].nilai;
-      this.customer.buktiBayar = this.customer.itemsOutstand[index].noBukti;
-    },
-    setBayar() {
-      this.customer.itemsOutstand[this.customer.indexOutstand].nilai =
-        this.customer.nilaiBayar;
-      this.customer.itemsOutstand[this.customer.indexOutstand].noBukti =
-        this.customer.buktiBayar;
-      this.customer.itemsOutstand[this.customer.indexOutstand].kurang =
-        this.customer.itemsOutstand[this.customer.indexOutstand].sisa -
-        this.customer.nilaiBayar;
-      this.customer.dialogBayar = false;
+    saveNilai() {
+      let a = 0;
+      for (let i = 0; i < this.customer.itemsOutstand.length; i++) {
+        if (isNaN(this.customer.itemsOutstand[i].nilai) == false) {
+          a = a + parseInt(this.customer.itemsOutstand[i].nilai);
+        }
+      }
+      this.customer.sisaJumlah = parseInt(this.data.jumlah) - parseInt(a);
     },
     createData() {
       swal("Sukses", "Simpan Kas/Bank Berhasil", "success");

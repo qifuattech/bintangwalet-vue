@@ -225,42 +225,36 @@
               <tbody>
                 <tr v-for="(item, index) in invoice.items" :key="item.urut">
                   <td>{{ index + 1 }}</td>
-                  <td>{{ item.nama_bahan }}</td>
+                  <td>{{ item.nama_bahan }} {{ item.unit }} </td>
                   <td align="right">{{ formatNumber(item.jumlah) }}</td>
                   <td align="right">{{ formatNumber(item.rp_jual) }}</td>
                   <td align="right">{{ formatNumber(item.diskon_item) }}</td>
-                  <td align="right">{{ formatNumber(item.total_item_net) }}</td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="5">Subtotal</td>
                   <td align="right">
-                    <strong> {{ formatNumber(invoice.items[0].total) }}</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="5">Potongan</td>
-                  <td align="right">
-                    <strong>{{
-                      formatNumber(invoice.items[0].potongan)
-                    }}</strong>
+                    {{ formatNumber(item.jumlah * item.rp_jual) }}
                   </td>
                 </tr>
                 <tr>
                   <td align="right" colspan="5">Total</td>
+                  <td align="right">
+                    <strong>
+                      {{ formatNumber(invoice.items[0].total_kotor) }}</strong
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right" colspan="5">Total Diskon</td>
+                  <td align="right">
+                    <strong>{{ formatNumber(invoice.items[0].diskon) }}</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right" colspan="5">Total Bersih</td>
                   <td align="right">
                     <strong>{{
                       formatNumber(invoice.items[0].total_net)
                     }}</strong>
                   </td>
                 </tr>
-                <!-- <tr>
-                  <td align="right" colspan="5">Bayar</td>
-                  <td align="right">{{ formatNumber(invoice.items[0].bayar) }}</td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="5">Kembali</td>
-                  <td align="right">{{ formatNumber(invoice.items[0].total) }}</td>
-                </tr> -->
               </tbody>
             </table>
             <!-- TOTAL -->
@@ -326,7 +320,8 @@ export default {
             pembayaran: "",
             user: "",
             tgl_update: "",
-            total: "",
+            total_kotor: "",
+            total_net: "",
             diskon: "",
             bayar: "",
             kembali: "",

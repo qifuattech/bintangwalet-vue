@@ -53,7 +53,7 @@
                       }}</v-list-item-title>
                       <v-list-item-subtitle class="d-flex justify-space-around"
                         >{{ detail.jumlah }} x
-                        {{ detail.rp_jual - detail.diskon_item }}
+                        {{ detail.rp_jual}}  Disc. {{ detail.diskon_item }}
                         <v-spacer></v-spacer> =
                         {{
                           detail.jumlah * (detail.rp_jual - detail.diskon_item)
@@ -101,9 +101,14 @@
     >
       <v-card elevation="0">
         <v-col class="pa-0">
-          <v-card-title class="py-1 d-flex justify-start">
-            <div class="text-h4">BINTANG WALET</div>
+          <v-card-title class="py-1 d-flex justify-space-around">
+            <div class="text-h4"><strong>BINTANG WALET</strong></div>
+            <v-spacer></v-spacer>
+            <v-chip label outlined color="black" large
+              ><div class="text-h5">NOTA PENJUALAN</div></v-chip
+            >
           </v-card-title>
+          <hr />
           <v-card-text>
             <!-- HEADER -->
             <table>
@@ -145,38 +150,32 @@
                   <td align="right">{{ formatNumber(item.jumlah) }}</td>
                   <td align="right">{{ formatNumber(item.rp_jual) }}</td>
                   <td align="right">{{ formatNumber(item.diskon_item) }}</td>
-                  <td align="right">{{ formatNumber(item.total_item_net) }}</td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="5">Subtotal</td>
                   <td align="right">
-                    <strong> {{ formatNumber(invoice.items[0].total) }}</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="5">Potongan</td>
-                  <td align="right">
-                    <strong>{{
-                      formatNumber(invoice.items[0].potongan)
-                    }}</strong>
+                    {{ formatNumber(item.jumlah * item.rp_jual) }}
                   </td>
                 </tr>
                 <tr>
                   <td align="right" colspan="5">Total</td>
+                  <td align="right">
+                    <strong>
+                      {{ formatNumber(invoice.items[0].total_kotor) }}</strong
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right" colspan="5">Total Diskon</td>
+                  <td align="right">
+                    <strong>{{ formatNumber(invoice.items[0].diskon) }}</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right" colspan="5">Total Bersih</td>
                   <td align="right">
                     <strong>{{
                       formatNumber(invoice.items[0].total_net)
                     }}</strong>
                   </td>
                 </tr>
-                <!-- <tr>
-                  <td align="right" colspan="5">Bayar</td>
-                  <td align="right">{{ formatNumber(invoice.items[0].bayar) }}</td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="5">Kembali</td>
-                  <td align="right">{{ formatNumber(invoice.items[0].total) }}</td>
-                </tr> -->
               </tbody>
             </table>
             <!-- TOTAL -->
@@ -193,86 +192,12 @@
               </v-col>
             </div>
             <v-divider class="my-2"></v-divider>
-            <!-- <div class="d-flex justify-center">
-              Terima Kasih Atas Kunjungan Anda
-            </div> -->
           </v-card-text>
         </v-col>
       </v-card>
     </v-dialog>
     <!-- END CETAK INVOICE -->
 
-    <!-- CETAK INVOICE -->
-    <v-dialog
-      scrollable
-      fullscreen
-      :overlay="false"
-      max-width="500px"
-      transition="dialog-transition"
-    >
-      <v-card elevation="0">
-        <v-col class="pa-0">
-          <v-card outlined max-width="300px">
-            <v-card-title class="py-1 d-flex justify-center"
-              >BINTANG WALET
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-card-text>
-              <!-- HEADER -->
-              <div>No. Nota : {{ invoice.items[0].no_bukti }}</div>
-              <div>Kasir : {{ invoice.items[0].user }}</div>
-              <div>
-                Tanggal : {{ formatDateTime(invoice.items[0].tgl_update) }}
-              </div>
-              <v-divider class="my-2"></v-divider>
-              <!-- DETAIL -->
-              <div v-for="item in invoice.items" :key="item.urut">
-                <div>{{ item.nama_bahan }}</div>
-                <div class="d-flex justify-space-around">
-                  {{ item.jumlah }} x {{ formatNumber(item.rp_jual) }} (Disc.
-                  {{ formatNumber(item.diskon_item) }})
-                  <v-spacer></v-spacer>
-                  {{ formatNumber(item.total_item_net) }}
-                </div>
-              </div>
-              <!-- TOTAL -->
-              <div class="mt-3">
-                <div class="d-flex justify-end">
-                  <table>
-                    <tr>
-                      <td align="right">Total</td>
-                      <td style="padding-left: 5px; padding-right: 20px">:</td>
-                      <td align="right">
-                        {{ formatNumber(invoice.items[0].total_net) }}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td align="right">Bayar Tunai</td>
-                      <td style="padding-left: 5px; padding-right: 20px">:</td>
-                      <td align="right">
-                        {{ formatNumber(invoice.items[0].bayar) }}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td align="right">Kembali</td>
-                      <td style="padding-left: 5px; padding-right: 20px">:</td>
-                      <td align="right">
-                        {{ formatNumber(invoice.items[0].kembali) }}
-                      </td>
-                    </tr>
-                  </table>
-                </div>
-              </div>
-              <v-divider class="my-2"></v-divider>
-              <div class="d-flex justify-center">
-                Terima Kasih Atas Kunjungan Anda
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-card>
-    </v-dialog>
-    <!-- END CETAK INVOICE -->
   </v-container>
 </template>
 
@@ -301,13 +226,13 @@ export default {
           // },
           {
             text: "TOTAL TRANSAKSI",
-            value: "total",
+            value: "total_kotor",
             align: "right",
             divider: true,
           },
           {
             text: "TOTAL DISKON",
-            value: "potongan",
+            value: "diskon",
             align: "right",
             divider: true,
           },
@@ -344,7 +269,8 @@ export default {
             pembayaran: "",
             user: "",
             tgl_update: "",
-            total: "",
+            total_kotor: "",
+            total_net: "",
             diskon: "",
             bayar: "",
             kembali: "",

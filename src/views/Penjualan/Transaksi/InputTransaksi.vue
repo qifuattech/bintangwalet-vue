@@ -135,7 +135,7 @@
                   <div class="d-flex justify-space-around">
                     <div>Rp.</div>
                     <v-spacer></v-spacer>
-                    <div>{{ formatNumber(totalTransaksi()) }}</div>
+                    <div>{{ formatNumber(totalBersihTransaksi()) }}</div>
                   </div>
                 </v-card>
               </v-col>
@@ -306,45 +306,39 @@
                 <v-row>
                   <v-col cols="4">
                     <v-text-field
-                      label="Subtotal"
-                      :value="formatNumber(subtotalTransaksi())"
+                      label="Total"
+                      :value="formatNumber(totalKotorTransaksi())"
                       readonly
                       dense
                       outlined
                       background-color="blue-grey lighten-5"
                     ></v-text-field>
-                    <v-text-field
+                    <!-- <v-text-field
                       label="Potongan"
                       v-model="data.potongan"
                       dense
                       outlined
                       background-color="light-blue lighten-5"
-                    ></v-text-field>
+                    ></v-text-field> -->
                     <v-text-field
-                      label="Total"
-                      :value="formatNumber(totalTransaksi())"
+                      label="Diskon Total"
+                      :value="formatNumber(totalDiskon())"
                       dense
                       outlined
-                      background-color="light-blue lighten-5"
+                      readonly
+                      background-color="blue-grey lighten-5"
                     ></v-text-field>
-                    <!-- <v-text-field
-                      label="Total"
-                      :value="formatNumber(totalTransaksi())"
-                      readonly
-                      dense
-                      outlined
-                      background-color="blue-grey lighten-5"
-                    ></v-text-field> -->
-                    <!-- <v-text-field
-                      label="Total UP"
-                      :value="formatNumber(totalTransaksiUp())"
-                      readonly
-                      dense
-                      outlined
-                      background-color="blue-grey lighten-5"
-                    ></v-text-field> -->
                   </v-col>
                   <v-col cols="4">
+                    <v-text-field
+                      label="Grand Total"
+                      :value="formatNumber(totalBersihTransaksi())"
+                      dense
+                      outlined
+                      readonly
+                      class="text-h5"
+                      background-color="blue-grey lighten-5"
+                    ></v-text-field>
                     <div class="d-flex justify-space-aorund">
                       <v-text-field
                         label="Bayar"
@@ -352,12 +346,10 @@
                         dense
                         outlined
                         type="number"
+                        class="text-h5"
                         :disabled="!staTunai()"
                         background-color="light-blue lighten-5"
                       ></v-text-field>
-                      <v-btn color="primary" text @click="showCash()"
-                        ><v-icon large>mdi-cash-multiple</v-icon></v-btn
-                      >
                     </div>
                     <v-text-field
                       label="Kembalian"
@@ -365,6 +357,7 @@
                       readonly
                       dense
                       outlined
+                      class="text-h5"
                       background-color="blue-grey lighten-5"
                     ></v-text-field>
                   </v-col>
@@ -408,7 +401,11 @@
       transition="dialog-transition"
     >
       <v-card outlined>
-        <barang-view  jenis="keluar" :staPilih="true" @barang="getBarang"></barang-view>
+        <barang-view
+          jenis="keluar"
+          :staPilih="true"
+          @barang="getBarang"
+        ></barang-view>
       </v-card>
     </v-dialog>
     <!-- END SHOW BARANG -->
@@ -436,9 +433,14 @@
     >
       <v-card elevation="0">
         <v-col class="pa-0">
-          <v-card-title class="py-1 d-flex justify-start">
-            <div class="text-h4">BINTANG WALET</div>
+          <v-card-title class="py-1 d-flex justify-space-around">
+            <div class="text-h4"><strong>BINTANG WALET</strong></div>
+            <v-spacer></v-spacer>
+            <v-chip label outlined color="black" large
+              ><div class="text-h5">NOTA PENJUALAN</div></v-chip
+            >
           </v-card-title>
+          <hr />
           <v-card-text>
             <!-- HEADER -->
             <table>
@@ -480,38 +482,32 @@
                   <td align="right">{{ formatNumber(item.jumlah) }}</td>
                   <td align="right">{{ formatNumber(item.rp_jual) }}</td>
                   <td align="right">{{ formatNumber(item.diskon_item) }}</td>
-                  <td align="right">{{ formatNumber(item.total_item_net) }}</td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="5">Subtotal</td>
                   <td align="right">
-                    <strong> {{ formatNumber(invoice.items[0].total) }}</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="5">Potongan</td>
-                  <td align="right">
-                    <strong>{{
-                      formatNumber(invoice.items[0].potongan)
-                    }}</strong>
+                    {{ formatNumber(item.jumlah * item.rp_jual) }}
                   </td>
                 </tr>
                 <tr>
                   <td align="right" colspan="5">Total</td>
+                  <td align="right">
+                    <strong>
+                      {{ formatNumber(invoice.items[0].total_kotor) }}</strong
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right" colspan="5">Total Diskon</td>
+                  <td align="right">
+                    <strong>{{ formatNumber(invoice.items[0].diskon) }}</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right" colspan="5">Total Bersih</td>
                   <td align="right">
                     <strong>{{
                       formatNumber(invoice.items[0].total_net)
                     }}</strong>
                   </td>
                 </tr>
-                <!-- <tr>
-                  <td align="right" colspan="5">Bayar</td>
-                  <td align="right">{{ formatNumber(invoice.items[0].bayar) }}</td>
-                </tr>
-                <tr>
-                  <td align="right" colspan="5">Kembali</td>
-                  <td align="right">{{ formatNumber(invoice.items[0].total) }}</td>
-                </tr> -->
               </tbody>
             </table>
             <!-- TOTAL -->
@@ -597,12 +593,9 @@ export default {
         kodeCustomer: "",
         namaCustomer: "",
         jenisBayar: "tunai",
-        total_net: "",
-        total: "",
-        totalUp: "",
+        total_bersih: "",
         diskon: "",
         bayar: "",
-        potongan: "",
         pickerTanggal: false,
         tanggal: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
           .toISOString()
@@ -780,9 +773,8 @@ export default {
       this.form.jumlah_up = value.stok;
       this.barang.dialog = false;
       setTimeout(() => {
-        this.$refs.inputJumlah.focus();  
+        this.$refs.inputJumlah.focus();
       }, 100);
-      
     },
     tambahItem() {
       this.data.items.push({ ...this.form });
@@ -800,7 +792,7 @@ export default {
             return;
           }
           this.data.noBukti = res.data.no_bukti;
-          swal("Sukses", res.data.message, "success")
+          swal("Sukses", res.data.message, "success");
           // swal("Sukses", res.data.message, "success", {
           //   buttons: {
           //     cetak: true,
@@ -896,7 +888,15 @@ export default {
         .substr(0, 10);
       this.resetForm();
     },
-    totalTransaksi() {
+    totalKotorTransaksi() {
+      let a = 0;
+      for (let i = 0; i < this.data.items.length; i++) {
+        a = a + this.data.items[i].jumlah * this.data.items[i].rp_jual;
+      }
+      this.data.total_kotor = a;
+      return a;
+    },
+    totalBersihTransaksi() {
       let a = 0;
       for (let i = 0; i < this.data.items.length; i++) {
         a =
@@ -904,19 +904,10 @@ export default {
           (this.data.items[i].jumlah * this.data.items[i].rp_jual -
             this.data.items[i].jumlah * this.data.items[i].diskon);
       }
-      this.data.total_net = a - this.data.potongan;
-      return a-this.data.potongan;
-    },
-    subtotalTransaksi() {
-      let a = 0;
-      for (let i = 0; i < this.data.items.length; i++) {
-        a = a + (this.data.items[i].jumlah * this.data.items[i].rp_jual -
-            this.data.items[i].jumlah * this.data.items[i].diskon);
-      }
-      this.data.total = a;
+      this.data.total_bersih = a;
       return a;
     },
-    subtotalDiskon() {
+    totalDiskon() {
       let a = 0;
       for (let i = 0; i < this.data.items.length; i++) {
         a = a + this.data.items[i].jumlah * this.data.items[i].diskon;
@@ -926,12 +917,11 @@ export default {
     },
     kembalian() {
       if (this.data.jenisBayar != "tunai") {
-        this.data.bayar = 0
-        return 0 
+        this.data.bayar = 0;
+        return 0;
       } else {
-        return this.data.bayar - this.totalTransaksi();
+        return this.data.bayar - this.totalBersihTransaksi();
       }
-      
     },
     staTunai() {
       if (this.data.jenisBayar != "tunai") {
