@@ -459,7 +459,7 @@ export default {
         kategori: "",
         kode_bank2: "",
         nama_bank2: "",
-        jumlah: 300000,
+        jumlah: 0,
         kode_rekening: "",
         nama_rekening: "",
         xjenis: "",
