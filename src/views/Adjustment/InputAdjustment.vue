@@ -38,6 +38,7 @@
                       v-on="on"
                       dense
                       outlined
+                      disabled
                       background-color="light-blue lighten-5"
                     ></v-text-field>
                     <!-- PILIH JENIS ADJUSTMEN -->

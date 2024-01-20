@@ -328,99 +328,61 @@
         <v-card-title>
           DATA PIUTANG CUSTOMER : {{ this.data.nama_akun }}
           <v-spacer></v-spacer>
+          <strong> {{ sumSisaJumlah }}</strong>
         </v-card-title>
         <v-card-text>
-          <v-row>
-            <v-col cols="8">
-              <v-card outlined>
-                <v-data-table
-                  :headers="customer.headersOutstand"
-                  :items="customer.itemsOutstand"
-                  :loading="customer.loadingOutstand"
-                  :search="customer.searchOutstand"
-                  dense
-                  :items-per-page="50"
-                  hide-default-footer
+          <v-card outlined>
+            <v-data-table
+              :headers="customer.headersOutstand"
+              :items="customer.itemsOutstand"
+              :loading="customer.loadingOutstand"
+              :search="customer.searchOutstand"
+              dense
+              :items-per-page="50"
+              hide-default-footer
+            >
+              <template v-slot:[`item.opsi`]="{ index }">
+                <v-btn color="primary" @click="showBayar(index)" text
+                  ><v-icon large>mdi-pencil-box-outline</v-icon></v-btn
                 >
-                  <template v-slot:[`item.opsi`]="{ index }">
-                    <v-btn color="primary" @click="updateNilai(index)" text
-                      ><v-icon large>mdi-pencil-box-outline</v-icon></v-btn
-                    >
-                  </template>
-                </v-data-table>
-              </v-card>
-              <div class="d-flex justify-end mt-2">
-                <table>
-                  <tbody>
-                    <strong>
-                      <tr>
-                        <td>Total Bayar</td>
-                        <td class="px-1">:</td>
-                        <td align="right">{{ formatNumber(sumNilai()) }}</td>
-                      </tr>
-                      <tr>
-                        <td>Total Sisa Jumlah</td>
-                        <td class="px-1">:</td>
-                        <td align="right">
-                          {{ formatNumber(sumSisaJumlah()) }}
-                        </td>
-                      </tr>
-                    </strong>
-                  </tbody>
-                </table>
-              </div>
-            </v-col>
+              </template>
+              <template v-slot:item.nilai="props">
+                <v-edit-dialog
+                  :return-value.sync="props.item.nilai"
+                  @save="saveNilai(props.index, props.item.nilai)"
+                >
+                  <v-text-field
+                    dense
+                    outlined
+                    hide-details
+                    :value="props.item.nilai"
+                  ></v-text-field>
 
-            <v-col cols="4">
-              <v-card outlined>
-                <v-card-text>
-                  <v-text-field
-                    v-model="customer.noBukti"
-                    label="No. Bukti"
-                    dense
-                    outlined
-                    readonly
-                    background-color="blue-grey lighten-5"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="customer.outstand"
-                    label="Outstand"
-                    dense
-                    outlined
-                    readonly
-                    background-color="blue-grey lighten-5"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="customer.nilai"
-                    label="Nilai"
-                    dense
-                    outlined
-                    @input="changeKurang()"
-                    background-color="light-blue lighten-5"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="customer.kurang"
-                    label="Kurang"
-                    dense
-                    outlined
-                    readonly
-                    background-color="blue-grey lighten-5"
-                  ></v-text-field>
-                  <v-btn
-                    color="success"
-                    outlined
-                    rounded
-                    @click="applyNilai()"
-                    small
-                    >Terapkan</v-btn
-                  >
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-          <v-divider class="my-2"></v-divider>
-          <div class="d-flex justify-end"><v-btn color="success" outlined @click="setOutstand()">OK</v-btn></div> 
-          
+                  <template v-slot:input>
+                    <v-text-field
+                      v-model="props.item.nilai"
+                      type="number"
+                      label="Edit"
+                      single-line
+                      dense
+                      outlined
+                      clearable
+                      hide-details
+                    ></v-text-field>
+                  </template>
+                </v-edit-dialog>
+              </template>
+            </v-data-table>
+            {{ sumNilai }}
+          </v-card>
+          <div class="d-flex justify-end">
+            <v-btn
+              class="mt-2"
+              color="success"
+              @click="customer.dialogOutstand = false"
+              >OK</v-btn
+            >
+          </div>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -459,7 +421,7 @@ export default {
         kategori: "",
         kode_bank2: "",
         nama_bank2: "",
-        jumlah: 300000,
+        jumlah: 0,
         kode_rekening: "",
         nama_rekening: "",
         xjenis: "",
@@ -469,7 +431,6 @@ export default {
         sisa: 0,
         isValid: false,
         isValid2: false,
-        itemsOutstand : []
       },
       rules: {
         kode_bank: [(v) => v != "" || "Bank Harus Diisi"],
@@ -500,7 +461,7 @@ export default {
           { text: "NO. BUKTI", value: "no_bukti", divider: true },
           { text: "OUTSTAND", value: "sisa", divider: true },
           { text: "BAYAR", value: "nilai", divider: true },
-          { text: "SISA", value: "kurang", divider: true },
+          // { text: "SISA", value: "kurang", divider: true },
           // { text: "NO. BUKTI", value: "noBukti", divider: true },
           { text: "OPSI", value: "opsi" },
         ],
@@ -510,11 +471,6 @@ export default {
         dialogBayar: false,
         indexOutstand: 0,
         sisaJumlah: 0,
-
-        noBukti: "",
-        outstand: 0,
-        nilai: 0,
-        kurang: 0,
       },
       supplier: {
         dialog: false,
@@ -666,10 +622,6 @@ export default {
               return;
             }
             this.customer.itemsOutstand = res.data.data;
-            this.customer.indexOutstand = 0;
-            this.customer.outstand = 0;
-            this.customer.nilai = 0;
-            this.customer.kurang = 0;
             // for (let i = 0; i < this.customer.itemsOutstand.length; i++) {
             //   this.customer.itemsOutstand[i].nilai = 0;
             //   this.customer.itemsOutstand[i].kurang = 0;
@@ -680,58 +632,15 @@ export default {
           });
       }
     },
-    updateNilai(index) {
+    saveNilai(index) {
       this.customer.indexOutstand = index;
-      this.customer.noBukti = this.customer.itemsOutstand[index].no_bukti;
-      this.customer.outstand = this.customer.itemsOutstand[index].outstand;
-      this.customer.nilai = this.customer.itemsOutstand[index].nilai;
-      this.customer.kurang = this.customer.itemsOutstand[index].kurang;
-      this.customer.outstand = this.customer.itemsOutstand[index].sisa;
+      setTimeout(() => {
+        this.customer.itemsOutstand[index].kurang =
+          parseInt(this.customer.itemsOutstand[index].sisa) -
+          parseInt(this.customer.itemsOutstand[index].nilai);
+      }, 100);
     },
-    sumSisaJumlah() {
-      return this.data.jumlah - this.sumNilai();
-    },
-    sumNilai() {
-      let a = 0;
-      for (let i = 0; i < this.customer.itemsOutstand.length; i++) {
-        if (isNaN(this.customer.itemsOutstand[i].nilai) == false) {
-          a = a + this.customer.itemsOutstand[i].nilai * 1;
-        }
-      }
-      return a;
-    },
-    changeKurang() {
-      this.customer.kurang = this.customer.outstand - this.customer.nilai;
-      if (this.customer.kurang < 0) {
-        this.customer.nilai = 0;
-        this.customer.kurang = 0;
-      }
-    },
-    applyNilai() {
-      if (this.customer.nilai == 0) {
-        this.$notify({ type: "warning", text: "Nilai Masih Kosong" });
-        return;
-      }
-      if (this.customer.nilai > this.sumSisaJumlah()) {
-        this.$notify({ type: "warning", text: "Nilai Melebihi Sisa Jumlah" });
-        return;
-      }
-      let i = this.customer.indexOutstand;
-      this.customer.itemsOutstand[i].nilai = this.customer.nilai;
-      this.customer.itemsOutstand[i].kurang = this.customer.kurang;
-
-      this.customer.noBukti = "";
-      this.customer.indexOutstand = 99;
-      this.customer.outstand = 0;
-      this.customer.nilai = 0;
-      this.customer.kurang = 0;
-    },
-    setOutstand() {
-      this.customer.dialogOutstand = false
-      this.data.itemsOutstand = this.customer.itemsOutstand
-    },
-    async  createData() {
-    // await axios.post('penju')
+    createData() {
       swal("Sukses", "Simpan Kas/Bank Berhasil", "success");
       this.resetAll();
     },
@@ -754,6 +663,18 @@ export default {
   },
 
   computed: {
+    sumSisaJumlah() {
+      return this.data.jumlah - this.sumNilai;
+    },
+    sumNilai() {
+      let a = 0;
+      for (let i = 0; i < this.customer.itemsOutstand.length; i++) {
+        if (isNaN(this.customer.itemsOutstand[i].nilai) == false) {
+          a = a + this.customer.itemsOutstand[i].nilai * 1;
+        }
+      }
+      return a;
+    },
     isValid() {
       if (
         this.data.jumlah > 0 &&

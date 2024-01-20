@@ -230,14 +230,31 @@
             </v-row>
 
             <v-divider class="mb-4"></v-divider>
-            <v-text-field
-              label="Diskon Item"
-              v-model="form.diskon"
-              dense
-              outlined
-              type="number"
-              background-color="light-blue lighten-5"
-            ></v-text-field>
+            <v-row>
+              <v-col cols="6">
+                <v-text-field
+                  label="Diskon %"
+                  v-model="form.diskon_persen"
+                  dense
+                  outlined
+                  type="number"
+                  append-icon="mdi-percent"
+                  background-color="light-blue lighten-5"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  label="Diskon Item"
+                  v-model="form.diskon"
+                  dense
+                  outlined
+                  readonly
+                  type="number"
+                  background-color="blue-grey lighten-5"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
             <v-divider class="mb-4"></v-divider>
             <div class="d-flex justify-end">
               <v-btn
@@ -639,6 +656,7 @@ export default {
         subtotal: "0",
         harga_up: "0",
         jumlah_up: "0",
+        diskon_persen: "0",
         diskon: "0",
         staEdit: false,
         indexEdit: "",
@@ -867,9 +885,8 @@ export default {
       this.form.rp_jual = "";
       this.form.jumlah = "";
       this.form.subtotal = "";
-      this.form.harga_up = "";
-      this.form.jumlah_up = "";
-      this.form.diskon = "";
+      this.form.diskon_persen = "0";
+      this.form.diskon = "0";
       this.form.staEdit = false;
       this.form.indexEdit = "";
     },
@@ -944,7 +961,25 @@ export default {
         return false;
       }
     },
+    diskonPersen() {
+      return this.form.diskon_persen
+    }
   },
+  watch: {
+    diskonPersen() {
+      if (this.form.diskon_persen > 100) {
+        alert("Tidak Boleh Melebihi 100%")
+        this.form.diskon_persen = 0
+        return
+      }
+      if (this.form.diskon_persen < 0) {
+        alert("Tidak Boleh Kurang 0%")
+        this.form.diskon_persen = 0
+        return
+      }
+      this.form.diskon = (this.form.diskon_persen/100) * this.form.rp_jual
+    }
+  }
 };
 </script>
 

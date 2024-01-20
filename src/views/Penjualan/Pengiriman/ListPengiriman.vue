@@ -216,25 +216,32 @@
                 <tr>
                   <th>No.</th>
                   <th>Nama Barang</th>
+                  <th>Satuan</th>
                   <th>Jumlah</th>
-                  <th>Harga</th>
-                  <th>Diskon Item</th>
+                  <th>Harga Satuan</th>
                   <th>Subtotal</th>
+                  <th>Diskon</th>
+                  
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(item, index) in invoice.items" :key="item.urut">
                   <td>{{ index + 1 }}</td>
-                  <td>{{ item.nama_bahan }} {{ item.unit }} </td>
+                  <td>{{ item.nama_bahan }}</td>
+                  <td>{{ item.unit }}</td>
                   <td align="right">{{ formatNumber(item.jumlah) }}</td>
                   <td align="right">{{ formatNumber(item.rp_jual) }}</td>
-                  <td align="right">{{ formatNumber(item.diskon_item) }}</td>
                   <td align="right">
                     {{ formatNumber(item.jumlah * item.rp_jual) }}
                   </td>
+                  <td align="right">
+                    <!-- {{ formatNumber(item.jumlah * item.diskon_item) }} -->
+                    <!-- @{{ formatNumber(item.diskon_item) }} = -->
+                    {{ formatNumber(item.jumlah * item.diskon_item) }}
+                  </td>
                 </tr>
                 <tr>
-                  <td align="right" colspan="5">Total</td>
+                  <td align="right" colspan="6">Total Rp.</td>
                   <td align="right">
                     <strong>
                       {{ formatNumber(invoice.items[0].total_kotor) }}</strong
@@ -242,13 +249,13 @@
                   </td>
                 </tr>
                 <tr>
-                  <td align="right" colspan="5">Total Diskon</td>
+                  <td align="right" colspan="6">Total Diskon Rp.</td>
                   <td align="right">
                     <strong>{{ formatNumber(invoice.items[0].diskon) }}</strong>
                   </td>
                 </tr>
                 <tr>
-                  <td align="right" colspan="5">Total Bersih</td>
+                  <td align="right" colspan="6">Total Pembayaran Rp.</td>
                   <td align="right">
                     <strong>{{
                       formatNumber(invoice.items[0].total_net)
