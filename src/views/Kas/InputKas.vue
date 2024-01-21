@@ -463,7 +463,7 @@ export default {
   },
   data() {
     return {
-      tab: 1,
+      tab: null,
       data: {
         pickerTanggal: false,
         tanggal: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
@@ -474,7 +474,7 @@ export default {
         kategori: "",
         kode_bank2: "",
         nama_bank2: "",
-        jumlah: 100000,
+        jumlah: 0,
         kode_rekening: "",
         nama_rekening: "",
         xjenis: "",

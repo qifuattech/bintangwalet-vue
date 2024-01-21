@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/assets/img/login3.png"
   },
   {
-    "revision": "d4cfbb41408e5ab103fe",
+    "revision": "bad150d58756bf590584",
     "url": "/css/app.b31668c8.css"
   },
   {
@@ -136,12 +136,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/img/fa-solid-900.37bc7099.svg"
   },
   {
-    "revision": "8f82c6eec4bd00a1d3065eb95a5b5cfa",
+    "revision": "28a3845a88a9daed8cf8011e9b392678",
     "url": "/index.html"
   },
   {
-    "revision": "d4cfbb41408e5ab103fe",
-    "url": "/js/app.fe363099.js"
+    "revision": "bad150d58756bf590584",
+    "url": "/js/app.2c4861b8.js"
   },
   {
     "revision": "75fc27da7d8c7a8fcc95",
