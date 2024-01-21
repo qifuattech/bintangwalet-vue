@@ -7,7 +7,7 @@
             ><v-icon x-large>mdi-arrow-left-bold</v-icon></v-btn
           >
         </div>
-        <div class="text-h5 mt-1">INPUT PENERIMAAN PO SUPPLIER</div>
+        <h2>INPUT PENERIMAAN PO SUPPLIER</h2>
       </v-col>
     </v-row>
     <v-divider></v-divider>
@@ -291,9 +291,9 @@ export default {
     };
   },
   mounted() {
-    if (this.$route.query.nobukti != "") {
+    if ((this.$route.query.noBukti != "" && this.$route.query.noBukti != undefined) && (this.$route.query.noPo != "" && this.$route.query.noPo != undefined) ) {
       this.data.no_bukti = this.$route.query.nobukti;
-      this.data.no_po = this.$route.query.nopo;
+      this.data.no_po = this.$route.query.noPo;
       this.loadTerima();
     }
   },

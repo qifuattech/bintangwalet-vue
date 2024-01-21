@@ -112,10 +112,14 @@
                       >
                       <v-btn
                         class="ml-2"
-                        v-if="customer.listOutstand == true"
+                        v-if="
+                          customer.listOutstand == true ||
+                          supplier.listOutstand == true
+                        "
                         @click="showOutstand()"
                         ><v-icon>mdi-card-bulleted-outline</v-icon></v-btn
                       >
+                      <!-- {{ customer.listOutstand }} - {{ supplier.listOutstand }} -->
                     </div>
                     <!-- END KONDISIONAL GENERAL, CUSTOMER, SUPPLIER -->
 
@@ -322,12 +326,7 @@
     >
       <v-card class="pb-5">
         <v-card-title>
-          <div v-if="data.xjenis == 2">
-            DATA PIUTANG CUSTOMER : {{ this.data.nama_akun }}
-          </div>
-          <div v-if="data.xjenis == 3">
-            DATA HUTANG SUPPLIER : {{ this.data.nama_akun }}
-          </div>
+          DATA PIUTANG CUSTOMER : {{ this.data.nama_akun }}
           <v-spacer></v-spacer>
         </v-card-title>
         <v-card-text>
@@ -343,18 +342,6 @@
                   :items-per-page="50"
                   hide-default-footer
                 >
-                  <template v-slot:[`item.sisa`]="{ item }">
-                    {{ formatNumber(item.sisa) }}
-                  </template>
-                  <template v-slot:[`item.bayar`]="{ item }">
-                    {{ formatNumber(item.bayar) }}
-                  </template>
-                  <template v-slot:[`item.nilai`]="{ item }">
-                    {{ formatNumber(item.nilai) }}
-                  </template>
-                  <template v-slot:[`item.kurang`]="{ item }">
-                    {{ formatNumber(item.kurang) }}
-                  </template>
                   <template v-slot:[`item.opsi`]="{ index }">
                     <v-btn color="primary" @click="updateNilai(index)" text
                       ><v-icon large>mdi-pencil-box-outline</v-icon></v-btn
@@ -463,7 +450,7 @@ export default {
   },
   data() {
     return {
-      tab: 1,
+      tab: null,
       data: {
         pickerTanggal: false,
         tanggal: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
@@ -474,7 +461,7 @@ export default {
         kategori: "",
         kode_bank2: "",
         nama_bank2: "",
-        jumlah: 100000,
+        jumlah: 0,
         kode_rekening: "",
         nama_rekening: "",
         xjenis: "",
@@ -516,10 +503,9 @@ export default {
         headersOutstand: [
           { text: "TANGGAL", value: "tanggal", divider: true },
           { text: "NO. BUKTI", value: "no_bukti", divider: true },
-          { text: "OUTSTAND", value: "sisa", divider: true, align: "right" },
-          { text: "BAYAR", value: "bayar", divider: true, align: "right" },
-          { text: "JUMLAH", value: "nilai", divider: true, align: "right" },
-          { text: "SISA", value: "kurang", divider: true, align: "right" },
+          { text: "OUTSTAND", value: "sisa", divider: true },
+          { text: "BAYAR", value: "nilai", divider: true },
+          { text: "SISA", value: "kurang", divider: true },
           // { text: "NO. BUKTI", value: "noBukti", divider: true },
           { text: "OPSI", value: "opsi" },
         ],
@@ -537,6 +523,12 @@ export default {
       },
       supplier: {
         dialog: false,
+        listOutstand: false,
+        dialogOutstand: false,
+        headersOutstand: false,
+        itemsOutstand: [],
+        loadingOutstand: false,
+        searchOutstand: "",
       },
     };
   },
@@ -558,16 +550,18 @@ export default {
       switch (parseInt(this.data.xjenis)) {
         case 1:
           this.customer.listOutstand = false;
+          this.supplier.listOutstand = false;
           break;
         case 2:
           this.customer.listOutstand = true;
           break;
         case 3:
-          this.customer.listOutstand = true;
+          this.supplier.listOutstand = true;
           break;
 
         default:
           this.customer.listOutstand = false;
+          this.supplier.listOutstand = false;
           break;
       }
       this.rekening.dialog = false;
@@ -667,57 +661,28 @@ export default {
       if (this.customer.listOutstand == true && this.data.kode_akun != "") {
         this.customer.dialogOutstand = true;
         this.customer.sisaJumlah = this.data.jumlah;
-
-        //JIKA PIUTANG CUSTOMER
-        if (this.data.xjenis == 2) {
-          await axios
-            .post("penjualan/piutang/customer", {
-              kode: this.data.kode_akun,
-            })
-            .then((res) => {
-              if (res.status != 200) {
-                this.$notify({ type: "error", text: res.data.error });
-                return;
-              }
-              this.customer.itemsOutstand = res.data.data;
-              this.customer.indexOutstand = 0;
-              this.customer.outstand = 0;
-              this.customer.nilai = 0;
-              this.customer.kurang = 0;
-              for (let i = 0; i < this.customer.itemsOutstand.length; i++) {
-                this.customer.itemsOutstand[i].nilai = 0;
-                this.customer.itemsOutstand[i].kurang = 0;
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        }
-        // JIKA HUTANG SUPPLIER
-        else {
-          await axios
-            .post("pembelian/hutang/supplier", {
-              kode: this.data.kode_akun,
-            })
-            .then((res) => {
-              if (res.status != 200) {
-                this.$notify({ type: "error", text: res.data.error });
-                return;
-              }
-              this.customer.itemsOutstand = res.data.data;
-              this.customer.indexOutstand = 0;
-              this.customer.outstand = 0;
-              this.customer.nilai = 0;
-              this.customer.kurang = 0;
-              for (let i = 0; i < this.customer.itemsOutstand.length; i++) {
-                this.customer.itemsOutstand[i].nilai = 0;
-                this.customer.itemsOutstand[i].kurang = 0;
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        }
+        await axios
+          .post("penjualan/piutang/customer", {
+            kode: this.data.kode_akun,
+          })
+          .then((res) => {
+            if (res.status != 200) {
+              this.$notify({ type: "error", text: res.data.error });
+              return;
+            }
+            this.customer.itemsOutstand = res.data.data;
+            this.customer.indexOutstand = 0;
+            this.customer.outstand = 0;
+            this.customer.nilai = 0;
+            this.customer.kurang = 0;
+            for (let i = 0; i < this.customer.itemsOutstand.length; i++) {
+              this.customer.itemsOutstand[i].nilai = 0;
+              this.customer.itemsOutstand[i].kurang = 0;
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       }
     },
     updateNilai(index) {

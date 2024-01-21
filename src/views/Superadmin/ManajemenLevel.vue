@@ -2,274 +2,276 @@
   <v-container>
     <v-row>
       <v-col>
-        <h1>MANAJEMEN LEVEL USER</h1>
-        <p>Pengelolaan Level User</p>
+        <h2>MANAJEMEN LEVEL</h2>
       </v-col>
     </v-row>
-
     <v-divider></v-divider>
-    <!-- <v-row class="mt-2">
-      <v-col class="d-flex justify-start" cols="3">
-        <v-text-field v-model="cari" label="Pencarian" dense></v-text-field>
-      </v-col>
-      <v-col class="d-flex justify-end">
-        <v-btn small text color="primary" @click="showDialog()"
-          ><v-icon>mdi-plus</v-icon>Tambah Menu</v-btn
-        >
-        <v-btn small text color="success"
-          ><v-icon>mdi-refresh</v-icon>Refresh</v-btn
-        >
-      </v-col>
-    </v-row> -->
-    <v-row class="mt-0">
-      <v-col cols="4">
-        <v-card elevation="4">
-          <v-card-title>
-            <v-col class="d-flex justify-start" cols="auto"> Data Level </v-col>
-            <v-col class="d-flex justify-end">
-              <v-btn color="success" small @click="dialogTambahLevel = true"
-                ><v-icon>mdi-plus-thick</v-icon></v-btn
-              >
-            </v-col></v-card-title
-          >
-          <v-card-text>
-            <v-data-table
-              :headers="gridHeaders"
-              :items="arrData"
-              class="elevetion-1"
-              :search="cari"
-              :items-per-page="20"
-              dense
-            >
-              <template v-slot:[`item.icon`]="{ item }">
-                <v-icon>{{ item.icon }}</v-icon>
-                {{ item.icon }}
-              </template>
-              <template v-slot:[`item.opsi`]="{ item }">
-                <v-btn small text @click="showEdit(item.level_user)"
-                  ><v-icon>mdi-pencil</v-icon></v-btn
-                >
-              </template>
-            </v-data-table>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="8">
-        <v-card>
-          <v-card-title>
-            <v-col class="d-flex justify-start" cols="auto">
-              Set Akses Menu Level : {{ level }}
-            </v-col>
-
-            <v-col class="d-flex justify-end">
+    <v-row class="mt-2">
+      <v-col>
+        <v-card outlined>
+          <v-card-title class="d-flex justify-space-between">
+            <div class="mr-4">
               <v-btn
-                v-if="level.length > 0"
                 color="success"
-                small
-                @click="(dialogTambahMenu = true), loadMenu()"
-                ><v-icon>mdi-plus-thick</v-icon></v-btn
+                rounded
+                @click="
+                  (addData.dialog = true), resetForm(), (staUpdate = false)
+                "
+                >Tambah Data<v-icon>mdi-plus-thick</v-icon></v-btn
               >
-            </v-col>
+            </div>
+            <div>
+              <v-text-field
+                name="name"
+                label="Pencarian"
+                outlined
+                dense
+                hide-details
+                v-model="data.search"
+              ></v-text-field>
+            </div>
+            <v-spacer></v-spacer>
+            <div>
+              <download-excel
+                class="btn btn-default"
+                :fetch="fetchData"
+                worksheet="Data Level"
+                name="Data Level.xls"
+              >
+                <v-btn color="success" text
+                  >Excel<v-icon>mdi-table-arrow-down</v-icon></v-btn
+                >
+              </download-excel>
+            </div>
+            <div>
+              <v-btn color="primary" text @click="loadData()"
+                >REFRESH<v-icon>mdi-refresh</v-icon></v-btn
+              >
+            </div>
           </v-card-title>
           <v-card-text>
-            <v-data-table
-              :headers="gridHeadersDetail"
-              :items="arrDetail"
-              :search="cariDetail"
-              dense
-            >
-              <template v-slot:[`item.icon`]="{ item }">
-                <v-icon>{{ item.icon }}</v-icon>
-                {{ item.icon }}
-              </template>
-            </v-data-table>
+            <v-card outlined>
+              <v-data-table
+                :headers="data.headers"
+                :items="data.items"
+                :loading="data.loading"
+                :search="data.search"
+                dense
+              >
+                <template v-slot:[`item.no`]="{ index }">
+                  {{ index + 1 }}
+                </template>
+                <template v-slot:[`item.opsi`]="{ item }">
+                  <v-btn
+                    color="primary"
+                    text
+                    @click="pilihUnit(item.id, item.kode, item.nama)"
+                    v-if="staPilih"
+                    ><v-icon>mdi-check-bold</v-icon></v-btn
+                  >
+                  <v-btn
+                    color="primary"
+                    text
+                    @click="loadUpdate(item.id)"
+                    v-else
+                    ><v-icon>mdi-pen</v-icon></v-btn
+                  >
+                </template>
+              </v-data-table>
+            </v-card>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
 
-    <!-- DIALOG TAMBAH LEVEL -->
     <v-dialog
-      v-model="dialogTambahLevel"
-      max-width="500px"
+      v-model="addData.dialog"
+      width="1100px"
       transition="dialog-transition"
     >
-      <v-card>
-        <v-card-title>Tambah Level</v-card-title>
-        <v-card-text>
-          <v-text-field v-model="form.level" label="Nama Level"></v-text-field>
-        </v-card-text>
+      <v-card class="pb-5">
+        <v-card-title> Tambah Data </v-card-title>
         <v-divider></v-divider>
-        <v-card-actions>
-          <v-btn small color="success" @click="simpanLevel()">Simpan</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!-- END DIALOG TAMBAH LEVEL -->
+        <v-card-text class="mt-3">
+          <v-form v-model="addData.isValid">
+            <v-text-field
+              :rules="addData.rules.kode"
+              v-model="addData.form.kode"
+              label="Masukkan Kode (Contoh : pcs, bks, btl, eks, lbr, dll)"
+              dense
+              outlined
+            ></v-text-field>
+            <v-text-field
+              :rules="addData.rules.nama"
+              v-model="addData.form.nama"
+              label="Masukkan Kode (Contoh : Pieces, Bungkus,Botol, Eksemplar, Lembar, dll)"
+              dense
+              outlined
+            ></v-text-field>
 
-    <!-- DIALOG TAMBAH MENU -->
-    <v-dialog
-      v-model="dialogTambahMenu"
-      max-width="800px"
-      transition="dialog-transition"
-    >
-      <v-card>
-        <v-card-title> Daftar Menu </v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="cariMenu"
-            label="Pencarian Menu"
-          ></v-text-field>
-          <v-data-table
-            :headers="gridHeadersMenu"
-            :items="arrDataMenu"
-            class="elevation-1"
-            :search="cariMenu"
-            dense
-          >
-            <template v-slot:[`item.opsi`]="{ item }">
-              <v-btn text color="primary" @click="pilihMenu(item.kode_menu)">
-                <v-icon>mdi-check-bold</v-icon>
-              </v-btn>
-            </template>
-          </v-data-table>
+            <v-divider></v-divider>
+            <div class="d-flex justify-end mt-2">
+              <v-btn
+                color="success"
+                v-if="!staUpdate"
+                :disabled="!addData.isValid"
+                @click="createData()"
+                >SIMPAN<v-icon>mdi-floppy</v-icon></v-btn
+              >
+              <v-btn
+                v-else
+                color="warning"
+                :disabled="!addData.isValid"
+                @click="updateData()"
+                >UPDATE<v-icon>mdi-floppy</v-icon></v-btn
+              >
+            </div>
+          </v-form>
         </v-card-text>
       </v-card>
     </v-dialog>
-    <!-- END DIALOG TAMBAH MENU -->
+
+    <notifications position="bottom right"></notifications>
   </v-container>
 </template>
-
-<script>
+  
+  <script>
 import axios from "axios";
+import swal from "sweetalert";
+
 export default {
+  props: ["staPilih"],
   data() {
     return {
-      gridHeaders: [
-        { text: "LEVEL", value: "level_user" },
-        { text: "OPSI", value: "opsi" },
-      ],
-      gridHeadersDetail: [
-        { text: "KODE MENU", value: "kode_menu" },
-        { text: "NAMA MENU", value: "text" },
-        { text: "ROUTE", value: "route" },
-        { text: "ICON", value: "icon" },
-        { text: "OPSI", value: "opsi" },
-      ],
-      gridHeadersMenu: [
-        { text: "KODE MENU", value: "kode_menu" },
-        { text: "NAMA MENU", value: "text" },
-        { text: "ROUTE", value: "route" },
-        { text: "IKON", value: "icon" },
-        { text: "AKTIF", value: "flag_aktif" },
-        { text: "OPSI", value: "opsi" },
-      ],
-
-      arrData: [],
-      arrDetail: [],
-      arrDataMenu: [],
-      cari: "",
-      cariDetail: "",
-      cariMenu: "",
-      level: "",
-      staEdit: false,
-
-      form: {
-        level: "",
+      data: {
+        headers: [
+          { text: "NO.", value: "no", divider: true },
+          { text: "LEVEL", value: "level", divider: true },
+          { text: "JUMLAH MENU", value: "jml_menu", divider: true },    
+          { text: "OPSI", value: "opsi" },
+        ],
+        items: [],
+        loading: false,
+        search: "",
       },
-      dialogTambahLevel: false,
-      dialogTambahMenu: false,
+
+      addData: {
+        dialog: false,
+        isValid: false,
+        form: {
+          kode: "",
+          nama: "",
+        },
+        rules: {
+          kode: [(v) => v != "" || "Nama Harus Diisi"],
+          nama: [(v) => v != "" || "Alias Harus Diisi"],
+        },
+        loading: false,
+      },
+      child: "",
+      staUpdate: false,
     };
   },
-
   mounted() {
     this.loadData();
   },
   methods: {
-    simpanLevel() {
-      axios
-        .post(this.$store.state.apiServer + "level/createlevel", this.form)
+    async loadData() {
+      this.data.items = [];
+      this.data.loading = true;
+      await axios
+        .post("level/all", {})
         .then((res) => {
-          if (res.data.success == true) {
-            this.loadData();
-            this.dialogTambahLevel = false;
-          } else {
-            alert(res.data.message + " | " + res.data.data);
+          if (res.status != 200) {
+            this.$notify({ type: "error", text: res.data.error });
+            return;
           }
-        });
-    },
-    pilihMenu(kodeMenu) {
-      axios
-        .post(this.$store.state.apiServer + "level/tambahmenu", {
-          level: this.level,
-          kode_menu: kodeMenu,
-        })
-        .then((res) => {
-          if (res.data.success == true) {
-            this.loadDetail();
-            this.dialogTambahMenu = false;
-          } else {
-            alert(res.data.message + " | " + res.data.data);
-          }
+          this.data.items = res.data.data;
+          this.$notify({ type: "success", text: res.data.message });
         })
         .catch((err) => {
-          console.log(err);
+          this.$notify({ type: "error", text: err });
         });
+
+      this.data.loading = false;
     },
-    showEdit(level) {
-      this.level = level;
-      this.loadDetail();
+
+    async createData() {
+      this.addData.loading = true;
+      await axios
+        .post("master/unit/create", this.addData.form)
+        .then((res) => {
+          if (res.status != 200) {
+            swal("Gagal", res.data.message, "error");
+            return;
+          }
+          swal("Sukses", res.data.message, "success");
+          this.addData.dialog = false;
+          this.resetForm();
+          this.loadData();
+        })
+        .catch((err) => {
+          console.log(err.message);
+          swal("Gagal", "Ada Kesalahan Server (404)" + err.message, "error");
+        });
+      this.addData.loading = false;
     },
     resetForm() {
-      this.form.kode_menu = "";
-      this.form.text = "";
-      this.form.route = "";
-      this.form.icon = "";
+      this.addData.form = {
+        kode: "",
+        nama: "",
+      };
     },
-
-    loadData() {
-      axios
-        .get(this.$store.state.apiServer + "level")
-        .then((res) => {
-          this.arrData = res.data.data;
+    async loadUpdate(id) {
+      this.resetForm();
+      this.staUpdate = true;
+      await axios
+        .post("master/unit/bykode", {
+          id: id,
         })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
-
-    loadDetail() {
-      axios
-        .get(this.$store.state.apiServer + "level/" + this.level)
         .then((res) => {
-          if (res.data.success == true) {
-            this.arrDetail = res.data.data;
-          } else {
-              if (res.data.message== 'notfound') {
-                  this.arrDetail = []
-                  return
-              }
-            console.log(res.data.data);
+          if (res.status != 200) {
+            this.$notify({ type: "error", text: res.data.error });
+            return;
           }
+          this.addData.dialog = true;
+          this.addData.form.id = res.data.data.id;
+          this.addData.form.kode = res.data.data.kode;
+          this.addData.form.nama = res.data.data.nama;
+          this.$notify({ type: "success", text: res.data.message });
         })
         .catch((err) => {
-          console.log(err);
+          this.$notify({ type: "error", text: err });
         });
     },
-
-    loadMenu() {
-      axios
-        .get(this.$store.state.apiServer + "menu")
+    async updateData() {
+      await axios
+        .post("master/unit/update", this.addData.form)
         .then((res) => {
-          this.arrDataMenu = res.data.data;
+          swal("Sukses", res.data.message, "success");
+          this.addData.dialog = false;
+          this.resetForm();
+          this.loadData();
         })
         .catch((err) => {
           console.log(err);
+          swal("Gagal", "Ada Kesalahan Server (404)", "error");
         });
+    },
+    async fetchData() {
+      const res = await axios.post("master/bank");
+      return res.data.data;
+    },
+    pilihUnit(id, kode, nama) {
+      this.$emit("unit", {
+        idUnit: id,
+        kodeUnit: kode,
+        namaUnit: nama,
+      });
     },
   },
 };
 </script>
-
-<style>
-</style>
+  
+  <style></style>
+  

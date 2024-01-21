@@ -10,6 +10,7 @@ import Route from "../views/Route.vue";
 import Dashboard from "../views/Dashboard.vue";
 
 import ManajemenMenu from "../views/Superadmin/ManajemenMenu.vue";
+import ManajemenLevel from "../views/Superadmin/ManajemenLevel.vue";
 import ManajemenUserMenu from "../views/Superadmin/ManajemenUserMenu.vue";
 
 import MasterJenis from "../views/Master/JenisBarang.vue";
@@ -92,6 +93,14 @@ const routes = [
     path: "/pengaturan/menu",
     name: "ManajemenMenu",
     component: ManajemenMenu,
+    meta: {
+      auth: true
+    }
+  },
+  {
+    path: "/pengaturan/level",
+    name: "ManajemenLevel",
+    component: ManajemenLevel,
     meta: {
       auth: true
     }

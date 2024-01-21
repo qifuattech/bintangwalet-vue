@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <div class="text-h5">LIST PURCHASING ORDER (PO)</div>
+        <h2>LIST PURCHASING ORDER (PO)</h2>
       </v-col>
     </v-row>
     <v-divider></v-divider>
@@ -22,9 +22,72 @@
         <v-card outlined rounded="lg">
           <v-card-title class="d-flex justify-space-between">
             <div class="mr-4">
-              <v-btn color="success" rounded to="/pembelian/po/input"
-                >Tambah PO<v-icon>mdi-plus-thick</v-icon></v-btn
+              <v-btn
+                color="success"
+                rounded
+                to="/pembelian/po/input"
+                ref="tambahData"
+                ><v-icon>mdi-plus-thick</v-icon>Tambah PO</v-btn
               >
+            </div>
+            <div class="mr-2">
+              <v-menu
+                v-model="periode.pickerTanggal1"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    label="Tanggal Awal"
+                    :value="formatDate(periode.tanggal1)"
+                    append-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                    dense
+                    outlined
+                    hide-details
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="periode.tanggal1"
+                  @change="loadData()"
+                  @input="periode.pickerTanggal1 = false"
+                ></v-date-picker>
+              </v-menu>
+            </div>
+            <div class="mr-2">
+              <v-menu
+                v-model="periode.pickerTanggal2"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    label="Tanggal Akhir"
+                    :value="formatDate(periode.tanggal2)"
+                    append-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                    dense
+                    outlined
+                    hide-details
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="periode.tanggal2"
+                  @change="loadData()"
+                  @input="periode.pickerTanggal2 = false"
+                ></v-date-picker>
+              </v-menu>
             </div>
             <div>
               <v-text-field
@@ -34,6 +97,8 @@
                 dense
                 hide-details
                 v-model="data.search"
+                append-icon="mdi-magnify"
+                clearable
               ></v-text-field>
             </div>
             <v-spacer></v-spacer>
@@ -81,10 +146,16 @@
                   >
                 </template>
                 <template v-slot:[`item.nama`]="{ item }">
-                  {{ item.nama }} - {{ item.kd_supplier }}
+                  {{ item.nama }}
                 </template>
                 <template v-slot:[`item.tgl_po`]="{ item }">
-                  {{ formatDate(item.tgl_po) }} 
+                  {{ formatDate(item.tgl_po) }}
+                </template>
+                <template v-slot:[`item.total`]="{ item }">
+                  {{ formatNumber(item.total) }}
+                </template>
+                <template v-slot:[`item.diskon`]="{ item }">
+                  {{ formatNumber(item.diskon) }}
                 </template>
               </v-data-table>
             </v-card>
@@ -99,9 +170,7 @@
       transition="dialog-transition"
     >
       <v-card class="pb-5">
-        <v-card-title>
-          Tambah Data
-        </v-card-title>
+        <v-card-title> Tambah Data </v-card-title>
         <v-divider></v-divider>
         <v-card-text class="mt-3">
           <v-form v-model="addData.isValid">
@@ -176,13 +245,34 @@ export default {
   props: ["staPilih"],
   data() {
     return {
+      periode: {
+        pickerTanggal1: false,
+        tanggal1:
+          new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+            .toISOString()
+            .substr(0, 7) + "-01",
+        pickerTanggal2: false,
+        tanggal2: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+          .toISOString()
+          .substr(0, 10),
+      },
       data: {
         headers: [
           { text: "NO. PO", value: "no_po", divider: true },
           { text: "TGL. PO", value: "tgl_po", divider: true },
           { text: "NAMA SUPPLIER", value: "nama", width: "40%", divider: true },
-          { text: "JUMLAH", value: "total", align: "right", divider: true },
-          { text: "POTONGAN", value: "diskon", align: "right", divider: true },
+          {
+            text: "JUMLAH (Rp)",
+            value: "total",
+            align: "right",
+            divider: true,
+          },
+          {
+            text: "POTONGAN (Rp)",
+            value: "diskon",
+            align: "right",
+            divider: true,
+          },
           // { text: "PPN", value: "ppn", align: "right", divider: true },
           // { text: "PPH", value: "pph", align: "right", divider: true },
           { text: "KETERANGAN", value: "keterangan", divider: true },
@@ -228,13 +318,15 @@ export default {
     };
   },
   mounted() {
+    this.$refs.tambahData.$el.focus();
     this.loadData();
-    
   },
   methods: {
-    loadDetail(no_po) {
-      console.log(no_po);
-      this.$router.push({ path:'/pembelian/po/input', query: {nopo: no_po}})
+    loadDetail(noBukti) {
+      this.$router.push({
+        path: "/pembelian/po/input",
+        query: { noBukti: noBukti },
+      });
     },
     getJenis(data) {
       this.addData.form.kodeJenis = data.kd_jenis;
@@ -246,7 +338,10 @@ export default {
       this.data.items = [];
       this.data.loading = true;
       await axios
-        .post("pembelian/po/getall", {})
+        .post("pembelian/po/getall", {
+          tanggal1: this.periode.tanggal1,
+          tanggal2: this.periode.tanggal2,
+        })
         .then((res) => {
           if (res.status != 200) {
             this.$notify({ type: "error", text: res.data.error });

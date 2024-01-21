@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <div class="text-h5">MASTER BARANG</div>
+        <h2>MASTER BARANG</h2>
       </v-col>
     </v-row>
     <v-divider></v-divider>
@@ -32,16 +32,32 @@
                 >Tambah Data<v-icon>mdi-plus-thick</v-icon></v-btn
               >
             </div>
+            <!-- <div class="mr-2">
+              <v-select
+              :items="jenisBarang.items"
+              v-model="jenisBarang.value"
+              label="Jenis Barang"
+              item-text="nm_jenis"
+              dense
+              outlined
+              hide-details
+              @change="loadData()"
+            ></v-select>
+            </div> -->
             <div>
               <v-text-field
                 name="name"
                 label="Pencarian"
                 outlined
+                ref="inputSearch"
                 dense
                 hide-details
+                clearable
+                append-icon="mdi-magnify"
                 v-model="data.search"
               ></v-text-field>
             </div>
+            
             <v-spacer></v-spacer>
             <div v-if="jenis != 'keluar'">
               <download-excel
@@ -98,7 +114,10 @@
                   >
                 </template>
                 <template v-slot:[`item.stok`]="{ item }">
-                  {{ item.masuk - item.keluar }}
+                  {{ formatNumber(item.masuk - item.keluar) }}
+                </template>
+                <template v-slot:[`item.rp_jual`]="{ item }">
+                  {{ formatNumber(item.rp_jual) }}
                 </template>
               </v-data-table>
             </v-card>
@@ -247,8 +266,8 @@ export default {
           { text: "NAMA", value: "nama_bahan", width: "35%", divider: true },
           { text: "UKURAN", value: "ukuran", divider: true },
           { text: "UNIT", value: "unit", divider: true },
-          { text: "STOK", value: "stok", divider: true },
-          { text: "HARGA JUAL", value: "rp_jual", divider: true },
+          { text: "STOK", value: "stok", divider: true, align:"right" },
+          { text: "HARGA JUAL", value: "rp_jual", divider: true, align:"right" },
           { text: "OPSI", value: "opsi", width: "5%" },
         ],
 
@@ -282,6 +301,9 @@ export default {
         },
         loading: false,
       },
+      jenisBarang : {
+        items: []
+      },
       dialogJenisBarang: false,
       dialogUnitBarang: false,
       child: "",
@@ -289,7 +311,9 @@ export default {
     };
   },
   mounted() {
+    
     this.loadData();
+    this.$refs.inputSearch.focus()
   },
   methods: {
     getJenis(data) {
@@ -304,11 +328,12 @@ export default {
       this.dialogUnitBarang = false;
     },
     async loadData() {
-      console.log(this.jenis);
       this.data.items = [];
       this.data.loading = true;
       await axios
-        .post("master/barang", {})
+        .post("master/barang", {
+          // nm_jenis : this.jenisBarang.value.nm_jenis
+        })
         .then((res) => {
           if (res.status != 200) {
             this.$notify({ type: "error", text: res.data.error });
@@ -321,6 +346,10 @@ export default {
           console.log(err);
         });
 
+        // LOAD JENIS BARANG
+      await axios.post("master/jenisbarang").then((res) => {
+        this.jenisBarang.items = res.data.data;
+      });
       this.data.loading = false;
     },
     async createData() {

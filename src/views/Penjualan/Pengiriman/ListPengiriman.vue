@@ -12,8 +12,68 @@
           <v-card-title class="d-flex justify-space-between">
             <div class="mr-4">
               <v-btn color="success" rounded to="/penjualan/pengiriman/input"
-                >Tambah Data<v-icon>mdi-plus-thick</v-icon></v-btn
+                ><v-icon>mdi-plus-thick</v-icon>Tambah Data</v-btn
               >
+            </div>
+            <div class="mr-2">
+              <v-menu
+                v-model="periode.pickerTanggal1"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    label="Tanggal Awal"
+                    :value="formatDate(periode.tanggal1)"
+                    append-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                    dense
+                    outlined
+                    
+                    hide-details
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="periode.tanggal1"
+                  @change="loadData()"
+                  @input="periode.pickerTanggal1 = false"
+                ></v-date-picker>
+              </v-menu>
+            </div>
+            <div class="mr-2">
+              <v-menu
+                v-model="periode.pickerTanggal2"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    label="Tanggal Akhir"
+                    :value="formatDate(periode.tanggal2)"
+                    append-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                    dense
+                    outlined
+                    
+                    hide-details
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="periode.tanggal2"
+                  @change="loadData()"
+                  @input="periode.pickerTanggal2 = false"
+                ></v-date-picker>
+              </v-menu>
             </div>
             <div>
               <v-text-field
@@ -23,6 +83,8 @@
                 dense
                 hide-details
                 v-model="data.search"
+                clearable
+                append-icon="mdi-magnify"
               ></v-text-field>
             </div>
             <v-spacer></v-spacer>
@@ -55,12 +117,17 @@
                 <template v-slot:[`item.tanggal`]="{ item }">
                   {{ formatDate(item.tanggal) }}
                 </template>
+                <template v-slot:[`item.jumlah`]="{ item }">
+                  {{ formatNumber(item.jumlah) }}
+                </template>
                 <template v-slot:[`item.opsi`]="{ item }">
                   <div class="d-flex justify-center">
                     <v-btn
                       color="primary"
                       small
                       class="mr-3"
+                      outlined
+                      rounded
                       @click="printSj(item.no_sj)"
                       ><v-icon small class="mr-2">mdi-printer</v-icon>SJ</v-btn
                     >
@@ -68,6 +135,8 @@
                       color="indigo"
                       dark
                       small
+                      outlined
+                      rounded
                       @click="printInvoice(item.no_bukti)"
                       ><v-icon small class="mr-2">mdi-printer</v-icon
                       >Nota</v-btn
@@ -291,13 +360,24 @@ import axios from "axios";
 export default {
   data() {
     return {
+      periode: {
+        pickerTanggal1: false,
+        tanggal1:
+          new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+            .toISOString()
+            .substr(0, 7) + "-01",
+        pickerTanggal2: false,
+        tanggal2: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+          .toISOString()
+          .substr(0, 10),
+      },
       data: {
         headers: [
           { text: "TANGGAL", value: "tanggal", divider: true },
           { text: "NO SJ", value: "no_sj", divider: true },
           { text: "NO PENJUALAN", value: "no_bukti", divider: true },
           { text: "CUSTOMER", value: "nama", divider: true },
-          { text: "JUMLAH", value: "jumlah", divider: true },
+          { text: "JUMLAH", value: "jumlah", divider: true, align: "right" },
           { text: "OPSI", value: "opsi", divider: true },
         ],
         items: [],

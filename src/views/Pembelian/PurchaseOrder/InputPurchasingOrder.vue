@@ -7,7 +7,8 @@
             ><v-icon x-large>mdi-arrow-left-bold</v-icon></v-btn
           >
         </div>
-        <div class="text-h5 mt-1">INPUT PURCHASING ORDER</div>
+        <h2>INPUT PURCHASING ORDER</h2>
+        <!-- <div class="text-h5 mt-1">INPUT PURCHASING ORDER</div> -->
       </v-col>
     </v-row>
     <v-divider></v-divider>
@@ -126,12 +127,14 @@
               dense
               outlined
               readonly
-              :value="subtotal()"
+              class="text-h5"
+              :value="formatNumber(subtotal())"
               background-color="blue-grey lighten-5"
             ></v-text-field>
             <v-text-field
               v-model="data.potongan"
               label="Potongan"
+              class="text-h5"
               dense
               outlined
               background-color="light-blue lighten-5"
@@ -141,10 +144,12 @@
               label="Bayar"
               readonly
               dense
+              class="text-h5"
               outlined
-              :value="bayar()"
+              :value="formatNumber(bayar())"
               background-color="blue-grey lighten-5"
-            ></v-text-field>
+            >
+            </v-text-field>
           </v-card-text>
         </v-card>
       </v-col>
@@ -194,9 +199,22 @@
                 :search="data.search"
                 dense
               >
-                <template v-slot:[`item.subtotal`]="{ item }">
-                  {{ item.jumlah * item.hargaBeli }}
+              <template v-slot:[`item.jumlah`]="{ item }">
+                  {{ formatNumber(item.jumlah) }}
                 </template>
+                <template v-slot:[`item.stok`]="{ item }">
+                  {{ formatNumber(item.stok) }}
+                </template>
+                <template v-slot:[`item.hargaBeli`]="{ item }">
+                  {{ formatNumber(item.hargaBeli) }}
+                </template>
+                <template v-slot:[`item.rp_jual`]="{ item }">
+                  {{ formatNumber(item.rp_jual)  }}
+                </template>
+                <template v-slot:[`item.subtotal`]="{ item }">
+                  {{ formatNumber(item.jumlah * item.hargaBeli) }}
+                </template>
+                
                 <template v-slot:[`item.opsi`]="{ index }">
                   <v-btn color="error" text @click="hapusItem(index)"
                     ><v-icon>mdi-trash-can-outline</v-icon></v-btn
@@ -478,8 +496,8 @@ export default {
     };
   },
   mounted() {
-    if (this.$route.query.nopo != "") {
-      this.data.no_po = this.$route.query.nopo;
+    if (this.$route.query.noBukti != "" && this.$route.query.noBukti != undefined ) {
+      this.data.no_po = this.$route.query.noBukti;
       this.loadPo();
     }
   },

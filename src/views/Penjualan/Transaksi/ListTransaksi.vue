@@ -2,23 +2,91 @@
   <v-container>
     <v-row>
       <v-col>
-        <div class="text-h5">LIST TRANSAKSI PENJUALAN</div>
+        <h2>LIST TRANSAKSI PENJUALAN</h2>
+        <!-- <div class="text-h5">LIST TRANSAKSI PENJUALAN</div> -->
       </v-col>
     </v-row>
     <v-divider></v-divider>
     <v-row class="mt-2">
       <v-col>
-        <v-card outlined>
+        <v-card elevation="0" rounded="lg">
           <v-card-text>
-            <div class="d-flex justify-space-around">
-              <v-text-field
-                v-model="data.search"
-                label="Pencarian"
-                clearable
-                dense
-                outlined
-                class="mr-2"
-              ></v-text-field>
+            <div class="d-flex justify-space-between">
+              <div class="mr-4">
+                <v-btn color="success" rounded to="/penjualan/transaksi/input"
+                  ><v-icon>mdi-plus-thick</v-icon>Tambah Penjualan</v-btn
+                >
+              </div>
+              <div class="mr-2">
+                <v-menu
+                  v-model="periode.pickerTanggal1"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      label="Tanggal Awal"
+                      :value="formatDate(periode.tanggal1)"
+                      append-icon="mdi-calendar"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      dense
+                      outlined
+                      hide-details
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="periode.tanggal1"
+                    @change="loadData()"
+                    @input="periode.pickerTanggal1 = false"
+                  ></v-date-picker>
+                </v-menu>
+              </div>
+              <div class="mr-2">
+                <v-menu
+                  v-model="periode.pickerTanggal2"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      label="Tanggal Akhir"
+                      :value="formatDate(periode.tanggal2)"
+                      append-icon="mdi-calendar"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      dense
+                      outlined
+                      hide-details
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="periode.tanggal2"
+                    @change="loadData()"
+                    @input="periode.pickerTanggal2 = false"
+                  ></v-date-picker>
+                </v-menu>
+              </div>
+              <div>
+                <v-text-field
+                  v-model="data.search"
+                  label="Pencarian"
+                  clearable
+                  dense
+                  outlined
+                  class="mr-2"
+                  append-icon="mdi-magnify"
+                ></v-text-field>
+              </div>
+              <v-spacer></v-spacer>
               <v-btn color="success" text
                 >Excel <v-icon>mdi-download</v-icon>
               </v-btn>
@@ -49,25 +117,24 @@
                   >
                     <v-list-item-content>
                       <v-list-item-title>{{
-                        detail.nama_bahan 
+                        detail.nama_bahan
                       }}</v-list-item-title>
                       <v-list-item-subtitle class="d-flex justify-space-around"
-                        >{{ detail.jumlah }} x
-                        {{ detail.rp_jual}}  Disc. {{ detail.diskon_item }}
-                        <v-spacer></v-spacer> =
+                        >{{ detail.jumlah }} x {{ detail.rp_jual }} Disc.
+                        {{ detail.diskon_item }} <v-spacer></v-spacer> 
                         {{
-                          detail.jumlah * (detail.rp_jual - detail.diskon_item)
+                          formatNumber(detail.jumlah * (detail.rp_jual - detail.diskon_item)) 
                         }}</v-list-item-subtitle
                       >
                     </v-list-item-content>
                   </v-list-item>
                 </template>
-                <template v-slot:[`item.total`]="{ item }">
-                  {{ formatNumber(item.total) }}
+                <template v-slot:[`item.total_kotor`]="{ item }">
+                  {{ formatNumber(item.total_kotor) }}
                 </template>
 
-                <template v-slot:[`item.potongan`]="{ item }">
-                  {{ formatNumber(item.potongan) }}
+                <template v-slot:[`item.diskon`]="{ item }">
+                  {{ formatNumber(item.diskon) }}
                 </template>
                 <template v-slot:[`item.total_net`]="{ item }">
                   {{ formatNumber(item.total_net) }}
@@ -137,25 +204,32 @@
                 <tr>
                   <th>No.</th>
                   <th>Nama Barang</th>
+                  <th>Satuan</th>
                   <th>Jumlah</th>
-                  <th>Harga</th>
-                  <th>Diskon Item</th>
+                  <th>Harga Satuan</th>
                   <th>Subtotal</th>
+                  <th>Diskon</th>
+                  
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(item, index) in invoice.items" :key="item.urut">
                   <td>{{ index + 1 }}</td>
                   <td>{{ item.nama_bahan }}</td>
+                  <td>{{ item.unit }}</td>
                   <td align="right">{{ formatNumber(item.jumlah) }}</td>
                   <td align="right">{{ formatNumber(item.rp_jual) }}</td>
-                  <td align="right">{{ formatNumber(item.diskon_item) }}</td>
                   <td align="right">
                     {{ formatNumber(item.jumlah * item.rp_jual) }}
                   </td>
+                  <td align="right">
+                    <!-- {{ formatNumber(item.jumlah * item.diskon_item) }} -->
+                    <!-- @{{ formatNumber(item.diskon_item) }} = -->
+                    {{ formatNumber(item.jumlah * item.diskon_item) }}
+                  </td>
                 </tr>
                 <tr>
-                  <td align="right" colspan="5">Total</td>
+                  <td align="right" colspan="6">Total Rp.</td>
                   <td align="right">
                     <strong>
                       {{ formatNumber(invoice.items[0].total_kotor) }}</strong
@@ -163,13 +237,13 @@
                   </td>
                 </tr>
                 <tr>
-                  <td align="right" colspan="5">Total Diskon</td>
+                  <td align="right" colspan="6">Total Diskon Rp.</td>
                   <td align="right">
                     <strong>{{ formatNumber(invoice.items[0].diskon) }}</strong>
                   </td>
                 </tr>
                 <tr>
-                  <td align="right" colspan="5">Total Bersih</td>
+                  <td align="right" colspan="6">Total Pembayaran Rp.</td>
                   <td align="right">
                     <strong>{{
                       formatNumber(invoice.items[0].total_net)
@@ -197,7 +271,6 @@
       </v-card>
     </v-dialog>
     <!-- END CETAK INVOICE -->
-
   </v-container>
 </template>
 
@@ -206,11 +279,23 @@ import axios from "axios";
 export default {
   data() {
     return {
+      periode: {
+        pickerTanggal1: false,
+        tanggal1:
+          new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+            .toISOString()
+            .substr(0, 7) + "-01",
+        pickerTanggal2: false,
+        tanggal2: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+          .toISOString()
+          .substr(0, 10),
+      },
       data: {
         headers: [
           { text: "TANGGAL", value: "tanggal", divider: true },
           { text: "NO. BUKTI", value: "no_bukti", divider: true },
           { text: "METODE", value: "pembayaran", divider: true },
+          { text: "CUSTOMER", value: "nama", divider: true },
           { text: "DETAIL", value: "detail", divider: true },
           // {
           //   text: "JUMLAH BARANG",
@@ -248,12 +333,12 @@ export default {
             align: "right",
             divider: true,
           },
-          {
-            text: "KEMBALI",
-            value: "kembali",
-            align: "right",
-            divider: true,
-          },
+          // {
+          //   text: "KEMBALI",
+          //   value: "kembali",
+          //   align: "right",
+          //   divider: true,
+          // },
           { text: "OPSI", value: "opsi" },
         ],
         items: [],
@@ -286,7 +371,10 @@ export default {
     async loadData() {
       this.data.loading = true;
       await axios
-        .post("penjualan/transaksi")
+        .post("penjualan/transaksi", {
+          tanggal1 : this.periode.tanggal1,
+          tanggal2 : this.periode.tanggal2,
+        })
         .then((res) => {
           if (res.status != 200) {
             this.$notify({ type: "error", text: res.data.message });

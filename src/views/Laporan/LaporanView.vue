@@ -124,9 +124,10 @@ export default {
     return {
       periode: {
         pickerTanggal1: false,
-        tanggal1: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-          .toISOString()
-          .substr(0, 10),
+        tanggal1:
+          new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+            .toISOString()
+            .substr(0, 7) + "-01",
         pickerTanggal2: false,
         tanggal2: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
           .toISOString()

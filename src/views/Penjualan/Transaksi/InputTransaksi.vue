@@ -3,10 +3,10 @@
     <!-- INPUT DOC -->
     <v-row>
       <v-col>
-        <div class="text-h5 font-weight-bold">INPUT TRANSAKSI PENJUALAN</div>
+        <h2>INPUT TRANSAKSI PENJUALAN</h2>
       </v-col>
     </v-row>
-    <!-- <v-divider></v-divider> -->
+    <v-divider></v-divider>
     <v-row class="mt-0">
       <!-- FORM DOC (TANGGAL, KASIR, CUSTOMER) -->
       <v-col lg="4">
@@ -181,6 +181,7 @@
                   type="number"
                   dense
                   outlined
+                  v-on:keyup.13="$refs.inputRpJual.focus()"
                   ref="inputJumlah"
                   background-color="light-blue lighten-5"
                 ></v-text-field>
@@ -198,6 +199,8 @@
                 <v-text-field
                   label="Harga"
                   v-model="form.rp_jual"
+                  ref="inputRpJual"
+                  v-on:keyup.13="$refs.inputDiskonPersen.focus()"
                   type="number"
                   dense
                   outlined
@@ -238,6 +241,8 @@
                   dense
                   outlined
                   type="number"
+                  ref="inputDiskonPersen"
+                  v-on:keyup.13="tambahItem(), $refs.inputScan.focus()"
                   append-icon="mdi-percent"
                   background-color="light-blue lighten-5"
                 ></v-text-field>
@@ -260,6 +265,7 @@
               <v-btn
                 v-if="form.staEdit"
                 color="warning"
+                
                 small
                 rounded
                 @click="updateItem()"
@@ -670,7 +676,11 @@ export default {
   },
   methods: {
     proteksiStok() {
-      if (this.form.jumlah > this.form.stok) {
+      if (
+        this.form.jumlah > this.form.stok ||
+        this.form.jumlah < 0 ||
+        isNaN(this.form.jumlah)
+      ) {
         this.form.jumlah = 0;
       }
     },
@@ -795,6 +805,30 @@ export default {
       }, 100);
     },
     tambahItem() {
+      if (this.form.kode_bahan == "") {
+        this.$notify({
+          type: "warning",
+          text: "Silahkan pilih barang dahulu",
+        });
+        return
+      }
+      if (this.form.jumlah == 0) {
+        this.$notify({
+          type: "warning",
+          text: "Jumlah harus lebih dari 0",
+        });
+        return
+      }
+      
+
+      if (this.form.jumlah > this.form.stok || this.form.jumlah < 0) {
+        this.$notify({
+          type: "warning",
+          text: "Mohon Cek Kembali Jumlah",
+        });
+        this.form.jumlah = 0;
+        return;
+      }
       this.data.items.push({ ...this.form });
       this.resetForm();
     },
@@ -962,24 +996,24 @@ export default {
       }
     },
     diskonPersen() {
-      return this.form.diskon_persen
-    }
+      return this.form.diskon_persen;
+    },
   },
   watch: {
     diskonPersen() {
       if (this.form.diskon_persen > 100) {
-        alert("Tidak Boleh Melebihi 100%")
-        this.form.diskon_persen = 0
-        return
+        alert("Tidak Boleh Melebihi 100%");
+        this.form.diskon_persen = 0;
+        return;
       }
       if (this.form.diskon_persen < 0) {
-        alert("Tidak Boleh Kurang 0%")
-        this.form.diskon_persen = 0
-        return
+        alert("Tidak Boleh Kurang 0%");
+        this.form.diskon_persen = 0;
+        return;
       }
-      this.form.diskon = (this.form.diskon_persen/100) * this.form.rp_jual
-    }
-  }
+      this.form.diskon = (this.form.diskon_persen / 100) * this.form.rp_jual;
+    },
+  },
 };
 </script>
 

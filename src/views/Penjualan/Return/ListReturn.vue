@@ -15,6 +15,66 @@
                 ><v-icon class="mr-2">mdi-plus-thick</v-icon>Tambah Return</v-btn
               >
             </div>
+            <div class="mr-2">
+              <v-menu
+                v-model="periode.pickerTanggal1"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    label="Tanggal Awal"
+                    :value="formatDate(periode.tanggal1)"
+                    append-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                    dense
+                    outlined
+                    
+                    hide-details
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="periode.tanggal1"
+                  @change="loadData()"
+                  @input="periode.pickerTanggal1 = false"
+                ></v-date-picker>
+              </v-menu>
+            </div>
+            <div class="mr-2">
+              <v-menu
+                v-model="periode.pickerTanggal2"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    label="Tanggal Akhir"
+                    :value="formatDate(periode.tanggal2)"
+                    append-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                    dense
+                    outlined
+                    
+                    hide-details
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="periode.tanggal2"
+                  @change="loadData()"
+                  @input="periode.pickerTanggal2 = false"
+                ></v-date-picker>
+              </v-menu>
+            </div>
             <div>
               <v-text-field
                 label="Pencarian"
@@ -22,6 +82,8 @@
                 dense
                 hide-details
                 v-model="data.search"
+                clearable
+                append-icon="mdi-magnify"
               ></v-text-field>
             </div>
             <v-spacer></v-spacer>
@@ -89,6 +151,17 @@ export default {
   props: ["staPilih"],
   data() {
     return {
+      periode: {
+        pickerTanggal1: false,
+        tanggal1:
+          new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+            .toISOString()
+            .substr(0, 7) + "-01",
+        pickerTanggal2: false,
+        tanggal2: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+          .toISOString()
+          .substr(0, 10),
+      },
       data: {
         headers: [
           { text: "NO. BUKTI", value: "no_retur", divider: true },
@@ -114,7 +187,10 @@ export default {
       this.data.items = [];
       this.data.loading = true;
       await axios
-        .post("penjualan/return", {})
+        .post("penjualan/return", {
+          tanggal1 : this.periode.tanggal1,
+          tanggal2 : this.periode.tanggal2,
+        })
         .then((res) => {
           if (res.status != 200) {
             this.$notify({ type: "error", text: res.data.error });
