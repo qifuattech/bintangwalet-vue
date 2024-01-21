@@ -236,20 +236,23 @@
             <v-row>
               <v-col cols="6">
                 <v-text-field
-                  label="Diskon %"
+                  label="Diskon (%) Item"
                   v-model="form.diskon_persen"
                   dense
                   outlined
                   type="number"
                   ref="inputDiskonPersen"
-                  v-on:keyup.13="tambahItem(), $refs.inputScan.focus()"
+                  v-on:keyup.13="
+                    form.staEdit == true ? updateItem() : tambahItem(),
+                      $refs.inputScan.focus()
+                  "
                   append-icon="mdi-percent"
                   background-color="light-blue lighten-5"
                 ></v-text-field>
               </v-col>
               <v-col cols="6">
                 <v-text-field
-                  label="Diskon Item"
+                  label="Diskon (Rp) Item"
                   v-model="form.diskon"
                   dense
                   outlined
@@ -265,7 +268,6 @@
               <v-btn
                 v-if="form.staEdit"
                 color="warning"
-                
                 small
                 rounded
                 @click="updateItem()"
@@ -747,6 +749,7 @@ export default {
       this.form.subtotal = this.data.items[i].subtotal;
       this.form.harga_up = this.data.items[i].harga_up;
       this.form.jumlah_up = this.data.items[i].jumlah_up;
+      this.form.diskon_persen = this.data.items[i].diskon_persen;
       this.form.diskon = this.data.items[i].diskon;
       this.form.keterangan = this.data.items[i].keterangan;
       this.form.staEdit = true;
@@ -763,6 +766,7 @@ export default {
       this.data.items[i].subtotal = this.form.subtotal;
       this.data.items[i].harga_up = this.form.harga_up;
       this.data.items[i].jumlah_up = this.form.jumlah_up;
+      this.data.items[i].diskon_persen = this.form.diskon_persen;
       this.data.items[i].diskon = this.form.diskon;
       this.form.staEdit = false;
       this.form.indexEdit = "";
@@ -810,16 +814,15 @@ export default {
           type: "warning",
           text: "Silahkan pilih barang dahulu",
         });
-        return
+        return;
       }
       if (this.form.jumlah == 0) {
         this.$notify({
           type: "warning",
           text: "Jumlah harus lebih dari 0",
         });
-        return
+        return;
       }
-      
 
       if (this.form.jumlah > this.form.stok || this.form.jumlah < 0) {
         this.$notify({
