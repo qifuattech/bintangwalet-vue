@@ -31,6 +31,9 @@ import InputPurchasingOrder from "../views/Pembelian/PurchaseOrder/InputPurchasi
 import ListPenerimaanPO from "../views/Pembelian/PenerimaanPO/ListPenerimaanPO.vue";
 import InputPenerimaanPO from "../views/Pembelian/PenerimaanPO/InputPenerimaanPO.vue";
 
+import ListReturnPO from "../views/Pembelian/ReturnPenerimaan/ListReturn.vue";
+import InputReturnPO from "../views/Pembelian/ReturnPenerimaan/InputReturn.vue";
+
 import InputTransaksiPenjualan from "../views/Penjualan/Transaksi/InputTransaksi.vue";
 import ListTransaksiPenjualan from "../views/Penjualan/Transaksi/ListTransaksi.vue";
 
@@ -223,6 +226,22 @@ const routes = [
     path: "/pembelian/terima/input",
     name: "InputPenerimaanPO",
     component: InputPenerimaanPO,
+    meta: {
+      auth: true,
+    },
+  },
+  {
+    path: "/pembelian/return",
+    name: "ListReturnPO",
+    component: ListReturnPO,
+    meta: {
+      auth: true,
+    },
+  },
+  {
+    path: "/pembelian/return/input",
+    name: "InputReturnPO",
+    component: InputReturnPO,
     meta: {
       auth: true,
     },

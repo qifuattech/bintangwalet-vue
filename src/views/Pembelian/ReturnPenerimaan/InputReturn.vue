@@ -3,7 +3,7 @@
     <v-row>
       <v-col class="d-flex justify-start">
         <div>
-          <v-btn color="primary" text to="/pembelian/terima" class="mr-3"
+          <v-btn color="primary" text to="/pembelian/return" class="mr-3"
             ><v-icon x-large>mdi-arrow-left-bold</v-icon></v-btn
           >
         </div>
@@ -19,15 +19,16 @@
               <v-col cols="6">
                 <div class="d-flex justify">
                   <v-text-field
-                    label="No Transaksi (Otomatis)"
+                    label="No Penerimaan"
                     outlined
                     dense
                     class="mr-2"
                     readonly
                     :value="data.no_bukti"
-                    background-color="blue-grey lighten-5"
                   ></v-text-field>
-                  <v-btn @click="showTerima()"><v-icon>mdi-eye</v-icon></v-btn>
+                  <v-btn @click="showTerima()" color="light-blue lighten-4"
+                    ><v-icon>mdi-magnify</v-icon></v-btn
+                  >
                 </div>
                 <v-menu
                   v-model="data.pickerTanggal"
@@ -61,15 +62,14 @@
                     label="No. PO"
                     outlined
                     dense
-                    class="mr-2"
                     background-color="blue-grey lighten-5"
                   ></v-text-field>
-                  <v-btn
+                  <!-- <v-btn
                     color="light-blue lighten-4"
                     @click="showPo()"
                     :disabled="staView"
                     ><v-icon>mdi-magnify</v-icon></v-btn
-                  >
+                  > -->
                 </div>
               </v-col>
               <v-col cols="auto" lg="6">
@@ -113,36 +113,36 @@
                 :search="data.search"
                 dense
               >
-                <template v-slot:header.jml_dtg="{ header }">
+                <template v-slot:header.jml_return="{ header }">
                   {{ header.text }}
                   <v-btn
                     class="mr-2"
                     color="primary"
                     rounded
                     x-small
-                    @click="setAllDatang()"
+                    @click="setAllReturn()"
                     ><v-icon x-small>mdi-check-all</v-icon>Cek</v-btn
                   >
                 </template>
                 <template v-slot:[`item.no`]="{ index }">
                   {{ index + 1 }}
                 </template>
-                <template v-slot:item.jml_dtg="props">
+                <template v-slot:item.jml_return="props">
                   <v-edit-dialog
-                    :return-value.sync="props.item.jml_dtg"
+                    :return-value.sync="props.item.jml_return"
                     @save="
-                      saveJmlDtg(
+                      saveJmlReturn(
                         props.index,
-                        props.item.jml_dtg,
+                        props.item.jml_return,
                         props.item.jumlah,
                         props.item.dtg
                       )
                     "
                   >
-                    {{ props.item.jml_dtg }}
+                    {{ props.item.jml_return }}
                     <template v-slot:input>
                       <v-text-field
-                        v-model="props.item.jml_dtg"
+                        v-model="props.item.jml_return"
                         type="number"
                         label="Edit"
                         single-line
@@ -212,7 +212,7 @@ import ListPurchaseOrder from "@/views/Pembelian/PurchaseOrder/ListPurchasingOrd
 // import ListPenerimaanPO from "@/views/Pembelian/PurchaseOrder/ListPenerimaanPO.vue";
 import axios from "axios";
 import swal from "sweetalert";
-import ListPenerimaanPO from "./ListPenerimaanPO.vue";
+import ListPenerimaanPO from "../PenerimaanPO/ListPenerimaanPO.vue";
 
 export default {
   components: {
@@ -248,8 +248,8 @@ export default {
             divider: true,
           },
           {
-            text: "JUMLAH DATANG",
-            value: "jml_dtg",
+            text: "JUMLAH RETURN",
+            value: "jml_return",
             align: "right",
             divider: true,
             sortable: false,
@@ -289,7 +289,12 @@ export default {
     };
   },
   mounted() {
-    if ((this.$route.query.noBukti != "" && this.$route.query.noBukti != undefined) && (this.$route.query.noPo != "" && this.$route.query.noPo != undefined) ) {
+    if (
+      this.$route.query.noBukti != "" &&
+      this.$route.query.noBukti != undefined &&
+      this.$route.query.noPo != "" &&
+      this.$route.query.noPo != undefined
+    ) {
       this.data.no_bukti = this.$route.query.noBukti;
       this.data.no_po = this.$route.query.noPo;
       this.loadTerima();
@@ -314,7 +319,7 @@ export default {
       this.data.no_bukti = value.no_bukti;
       this.data.no_po = value.no_po;
       this.terima.dialog = false;
-      this.staView = true;
+      // this.staView = true;
       this.loadTerima();
     },
     getFormatDate(value) {
@@ -329,7 +334,6 @@ export default {
     },
     async loadTerima() {
       this.staFull = false;
-      console.log(this.data.no_bukti, this.data.no_po);
       await axios
         .post("pembelian/terima/bybukti", {
           no_bukti: this.data.no_bukti,
@@ -382,42 +386,49 @@ export default {
       this.po.dialog = false;
       this.loadPo();
     },
-    saveJmlDtg(index, jmlDtg, jumlah, dtg) {
-      // console.log(!isNaN(parseFloat(jmlDtg)));
-      // console.log(isFinite(jmlDtg));
-      if (!isNaN(parseFloat(jmlDtg)) && isFinite(jmlDtg)) {
-        if (jumlah - dtg < jmlDtg) {
-          this.$notify({ type: "error", text: "Jumlah Datang Melebihi" });
+    saveJmlReturn(index, jmlReturn, jumlah, dtg) {
+      if (!isNaN(parseFloat(jmlReturn)) && isFinite(jmlReturn)) {
+        if (dtg < jmlReturn) {
+          this.$notify({
+            type: "error",
+            text: "Jumlah Return Melebihi Jumlah Datang",
+          });
           setTimeout(() => {
-            this.data.items[index].jml_dtg = 0;
+            this.data.items[index].jml_return = 0;
           }, 100);
         } else {
           this.$notify({ type: "success", text: "Jumlah Aman" });
           setTimeout(() => {
-            this.data.items[index].jml_dtg = jmlDtg;
+            this.data.items[index].jml_return = jmlReturn;
           }, 100);
         }
       } else {
         this.$notify({ type: "error", text: "Masukkan Angka Valid" });
         setTimeout(() => {
-          this.data.items[index].jml_dtg = 0;
+          this.data.items[index].jml_return = 0;
         }, 100);
       }
     },
-    setAllDatang() {
+    setAllReturn() {
       for (let i = 0; i < this.data.items.length; i++) {
-        this.data.items[i].jml_dtg =
-          this.data.items[i].jumlah - this.data.items[i].dtg;
+        this.data.items[i].jml_return = this.data.items[i].dtg;
       }
     },
     async createData() {
       if (this.data.items == []) {
-        this.$notify({ type: "error", text: "Pilih PO terlebih dahulu" });
+        this.$notify({
+          type: "error",
+          text: "Pilih No Penerimaan terlebih dahulu",
+        });
         return;
       }
       let a = 0;
       for (let i = 0; i < this.data.items.length; i++) {
-        a++;
+        if (!isNaN(parseInt(this.data.items[i].jml_return))) {
+          if (parseInt(this.data.items[i].jml_return) > 0) {
+            a++;
+          }
+        }
       }
       if (a == 0) {
         this.$notify({
@@ -425,9 +436,8 @@ export default {
           text: "Masukkan Jumlah datang terlebih dahulu",
         });
       }
-
       await axios
-        .post("pembelian/terima/create", this.data)
+        .post("pembelian/return/create", this.data)
         .then((res) => {
           if (res.status != 200) {
             this.$notify({ type: "error", text: res.data.error });
@@ -443,13 +453,16 @@ export default {
     staValid() {
       let a = 0;
       for (let i = 0; i < this.data.items.length; i++) {
-        if (this.data.items[i].jumlah == this.data.items[i].dtg) {
+        if (this.data.items[i].jml_return > this.data.items[i].dtg) {
           a++;
         }
       }
 
-      var sumDatang = this.data.items.reduce((b, item) => b + item.jml_dtg, 0);
-      // console.log('sumDatang : ' + sumDatang);
+      var sumDatang = this.data.items.reduce(
+        (b, item) => b + item.jml_return,
+        0
+      );
+      console.log("sumDatang : " + sumDatang);
 
       if (a == this.data.items.length || sumDatang <= 0) {
         return false;

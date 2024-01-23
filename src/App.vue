@@ -92,7 +92,10 @@
 
     <v-app-bar
       app
-      style="background-color: #182b3a;background-image: linear-gradient(315deg, #182b3a 0%, #20a4f3 74%);"
+      style="
+        background-color: #182b3a;
+        background-image: linear-gradient(315deg, #182b3a 0%, #20a4f3 74%);
+      "
       dark
       dense
     >
@@ -105,7 +108,9 @@
       >
       <v-toolbar-title style="width: 250px" class="ml-0 pl-4">
         <!-- TITLE PERUSAHAAN -->
-        <span class="hidden-sm-and-down">{{ $store.state.auth.company.name }}</span>
+        <span class="hidden-sm-and-down">{{
+          $store.state.auth.company.name
+        }}</span>
         <!-- END TITLE PERUSAHAAN -->
       </v-toolbar-title>
 
@@ -182,15 +187,12 @@ export default {
       isLoggedIn: "isLoggedIn",
       user: "user",
       items: "menu",
-      company: "company"
+      company: "company",
     }),
   },
   methods: {
     async loadCompany() {
-      await this.$store.dispatch('get_company').then(() => {
-        this.document.title= this.company.name
-      })
-      
+      await this.$store.dispatch("get_company");
     },
     toogleFullscreen() {
       const elem = document.documentElement;
