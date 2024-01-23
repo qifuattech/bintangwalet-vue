@@ -101,7 +101,7 @@
                     "
                     v-if="staPilih"
                     :disabled="
-                      item.masuk - item.keluar <= 0 && jenis == 'keluar'
+                      (item.masuk - item.keluar <= 0 && jenis == 'keluar') || item.rp_jual <=0
                     "
                     ><v-icon>mdi-check-bold</v-icon></v-btn
                   >

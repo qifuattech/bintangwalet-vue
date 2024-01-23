@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <h2>KONVERSI BARANG</h2>
+        <h2>DAFTAR KONVERSI BARANG</h2>
       </v-col>
     </v-row>
     <v-divider></v-divider>
@@ -11,7 +11,11 @@
         <v-card>
           <v-card-title class="d-flex justify-space-between">
             <div class="mr-4">
-              <v-btn color="success" rounded to="/konversi/input" ref="tambahData"
+              <v-btn
+                color="success"
+                rounded
+                to="/konversi/input"
+                ref="tambahData"
                 ><v-icon>mdi-plus-thick</v-icon>Tambah Konversi</v-btn
               >
             </div>
@@ -34,7 +38,6 @@
                     v-on="on"
                     dense
                     outlined
-                    
                     hide-details
                   ></v-text-field>
                 </template>
@@ -64,7 +67,6 @@
                     v-on="on"
                     dense
                     outlined
-                    
                     hide-details
                   ></v-text-field>
                 </template>
@@ -131,8 +133,37 @@
                     ><v-icon>mdi-pen</v-icon></v-btn
                   > -->
                 </template>
-                <template v-slot:[`item.nama`]="{ item }">
-                  {{ item.nama }}
+                <template v-slot:[`item.barang_awal`]="{ item }">
+                  <v-row>
+                    <v-col cols="9">
+                      <div>{{ item.kode_bahan1 }}</div>
+                      <div>
+                        {{ item.nama_bahan1 }} {{ item.ukuran1 }}
+                        {{ item.unit1 }}
+                      </div>
+                    </v-col>
+                    <v-col cols="3" class="d-flex justify-center align-center">
+                      <div>
+                        <strong>{{ formatNumber(item.jumlah1) }}</strong>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </template>
+                <template v-slot:[`item.barang_tujuan`]="{ item }">
+                  <v-row>
+                    <v-col cols="9">
+                      <div>{{ item.kode_bahan2 }}</div>
+                      <div>
+                        {{ item.nama_bahan2 }} {{ item.ukuran2 }}
+                        {{ item.unit2 }}
+                      </div>
+                    </v-col>
+                    <v-col cols="3" class="d-flex justify-center align-center">
+                      <div>
+                        <strong>{{ formatNumber(item.jumlah2) }}</strong>
+                      </div>
+                    </v-col>
+                  </v-row>
                 </template>
                 <template v-slot:[`item.tanggal`]="{ item }">
                   {{ formatDate(item.tanggal) }}
@@ -165,13 +196,11 @@ export default {
       },
       data: {
         headers: [
-          { text: "NO. RETUR", value: "no_retur", divider: true },
+          { text: "NO. RETUR", value: "no_bukti", divider: true },
           { text: "TANGGAL", value: "tanggal", divider: true },
-          { text: "NO. TERIMA", value: "no_terima", divider: true },
-          { text: "NO. PO", value: "no_po", divider: true },
-          { text: "SUPPLIER", value: "nama", divider: true },
-          { text: "TOTAL (QTY)", value: "tot_qty", divider: true },
-          { text: "OPSI", value: "opsi" },
+          { text: "BARANG AWAL", value: "barang_awal", divider: true },
+          { text: "BARANG TUJUAN", value: "barang_tujuan", divider: true },
+        //   { text: "OPSI", value: "opsi" },
         ],
         items: [],
         loading: false,
@@ -194,9 +223,9 @@ export default {
       this.data.items = [];
       this.data.loading = true;
       await axios
-        .post("pembelian/return", {
-          tanggal1 : this.periode.tanggal1,
-          tanggal2 : this.periode.tanggal2,
+        .post("konversi", {
+          tanggal1: this.periode.tanggal1,
+          tanggal2: this.periode.tanggal2,
         })
         .then((res) => {
           if (res.status != 200) {

@@ -181,7 +181,7 @@
                   type="number"
                   dense
                   outlined
-                  v-on:keyup.13="$refs.inputRpJual.focus()"
+                  v-on:keyup.13="$refs.inputDiskonPersen.focus()"
                   ref="inputJumlah"
                   background-color="light-blue lighten-5"
                 ></v-text-field>
@@ -200,11 +200,11 @@
                   label="Harga"
                   v-model="form.rp_jual"
                   ref="inputRpJual"
-                  v-on:keyup.13="$refs.inputDiskonPersen.focus()"
+                  readonly
                   type="number"
                   dense
                   outlined
-                  background-color="light-blue lighten-5"
+                  background-color="blue-grey lighten-5"
                 ></v-text-field>
                 <v-text-field
                   label="Subtotal"

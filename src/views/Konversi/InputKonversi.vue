@@ -17,55 +17,134 @@
           <v-card-text>
             <v-row>
               <v-col cols="5">
-                <div class="d-flex justify-space-around">
-                  <v-text-field
-                    label="Kode Barang Awal"
-                    dense
-                    outlined
-                    class="mr-2"
-                  ></v-text-field>
-                  <v-btn color="light-blue lighten-4" @click="showBarang()"
-                    ><v-icon>mdi-magnify</v-icon></v-btn
-                  >
-                </div>
-                <v-text-field
-                  label="Jumlah"
-                  dense
-                  outlined
-                  class="mr-2"
-                  type="number"
-                ></v-text-field>
+                <v-card outlined>
+                  <v-card-title class="d-flex justify-end"> AWAL </v-card-title>
+                  <v-divider></v-divider>
+                  <v-card-text>
+                    <div class="d-flex justify-space-around">
+                      <v-text-field
+                        label="Kode Barang Awal"
+                        dense
+                        outlined
+                        class="mr-2"
+                        readonly
+                        :value="data.awal.kode_bahan"
+                      ></v-text-field>
+                      <v-btn
+                        color="light-blue lighten-4"
+                        @click="showBarang('awal')"
+                        ><v-icon>mdi-magnify</v-icon></v-btn
+                      >
+                    </div>
+                    <v-text-field
+                      label="Nama Barang"
+                      dense
+                      outlined
+                      :value="data.awal.nama_bahan + ' ' + data.awal.ukuran"
+                      class="mr-2"
+                      readonly
+                      background-color="blue-grey lighten-5"
+                    ></v-text-field>
+                    <v-text-field
+                      label="Unit"
+                      dense
+                      outlined
+                      :value="data.awal.unit"
+                      class="mr-2"
+                      readonly
+                      background-color="blue-grey lighten-5"
+                    ></v-text-field>
+                    <v-row>
+                      <v-col cols="6">
+                        <v-text-field
+                          label="Jumlah"
+                          dense
+                          outlined
+                          class="mr-2"
+                          type="number"
+                          v-model="data.awal.jumlah"
+                          @input="proteksiStok()"
+                          background-color="light-blue lighten-5"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="6">
+                        <v-text-field
+                          label="Stok"
+                          dense
+                          outlined
+                          class="mr-2"
+                          type="number"
+                          v-model="data.awal.stok"
+                          background-color="light-blue lighten-5"
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                </v-card>
               </v-col>
               <v-col cols="2" class="d-flex justify-center">
                 <v-icon x-large color="success">mdi-arrow-right-thick</v-icon>
               </v-col>
               <v-col cols="5">
-                <div class="d-flex justify-space-around">
-                  <v-text-field
-                    label="Kode Barang Tujuan"
-                    dense
-                    outlined
-                    class="mr-2"
-                  ></v-text-field>
-                  <v-btn color="light-blue lighten-4"
-                    ><v-icon>mdi-magnify</v-icon></v-btn
-                  >
-                </div>
-                <v-text-field
-                  label="Jumlah"
-                  dense
-                  outlined
-                  class="mr-2"
-                  type="number"
-                ></v-text-field>
+                <v-card outlined>
+                  <v-card-title class="d-flex justify-start">
+                    TUJUAN
+                  </v-card-title>
+                  <v-divider></v-divider>
+                  <v-card-text>
+                    <div class="d-flex justify-space-around">
+                      <v-text-field
+                        label="Kode Barang Tujuan"
+                        dense
+                        outlined
+                        readonly
+                        class="mr-2"
+                        :value="data.tujuan.kode_bahan"
+                      ></v-text-field>
+                      <v-btn
+                        color="light-blue lighten-4"
+                        @click="showBarang('tujuan')"
+                        ><v-icon>mdi-magnify</v-icon></v-btn
+                      >
+                    </div>
+                    <v-text-field
+                      label="Nama Barang"
+                      dense
+                      outlined
+                      :value="data.tujuan.nama_bahan + ' ' + data.tujuan.ukuran"
+                      class="mr-2"
+                      background-color="blue-grey lighten-5"
+                      readonly
+                    ></v-text-field>
+                    <v-text-field
+                      label="Unit"
+                      dense
+                      outlined
+                      :value="data.tujuan.unit"
+                      background-color="blue-grey lighten-5"
+                      readonly
+                      class="mr-2"
+                    ></v-text-field>
+                    <v-text-field
+                      label="Jumlah"
+                      dense
+                      outlined
+                      class="mr-2"
+                      type="number"
+                      v-model="data.tujuan.jumlah"
+                      background-color="light-blue lighten-5"
+                    ></v-text-field>
+                  </v-card-text>
+                </v-card>
               </v-col>
             </v-row>
           </v-card-text>
           <v-divider></v-divider>
           <v-card-text>
             <div class="d-flex justify-end">
-              <v-btn color="success"
-                ><v-icon class="mr-2">mdi-floppy</v-icon> SIMPAN</v-btn
+              <v-btn color="success" :loading="loading" @click="createData()"
+                ><v-icon class="mr-2" >mdi-floppy</v-icon>
+                SIMPAN</v-btn
               >
             </div>
           </v-card-text>
@@ -96,6 +175,7 @@
 <script>
 import axios from "axios";
 import BarangView from "../Master/BarangView.vue";
+import swal from "sweetalert";
 export default {
   components: {
     BarangView,
@@ -105,15 +185,23 @@ export default {
       data: {
         awal: {
           kode_bahan: "",
+          nama_bahan: "",
           ukuran: "",
           unit: "",
+          jumlah: "",
+          stok: "",
         },
         tujuan: {
           kode_bahan: "",
+          nama_bahan: "",
           ukuran: "",
           unit: "",
+          jumlah: "",
+          stok: "",
         },
+        
       },
+      loading: false,
       barang: {
         dialog: false,
         staAwal: false,
@@ -122,12 +210,18 @@ export default {
     };
   },
   methods: {
+    proteksiStok() {
+      if (this.data.awal.jumlah > this.data.awal.stok) {
+        this.$notify({ type: "warning", text: "Jumlah Melebihi Stok" });
+        this.data.awal.jumlah = 0;
+      }
+    },
     showBarang(jenis) {
       this.barang.dialog = true;
       if (jenis == "awal") {
-        this.staAwal = true;
+        this.barang.staAwal = true;
       } else {
-        this.staTujuan = true;
+        this.barang.staTujuan = true;
       }
     },
     getBarang(value) {
@@ -139,16 +233,52 @@ export default {
           kode_bahan: kode,
         })
         .then((res) => {
-          if (this.staAwal == true) {
+          if (this.barang.staAwal == true) {
             this.data.awal.kode_bahan = res.data.data.kode_bahan;
+            this.data.awal.nama_bahan = res.data.data.nama_bahan;
             this.data.awal.ukuran = res.data.data.ukuran;
             this.data.awal.unit = res.data.data.unit;
+            this.data.awal.stok = res.data.data.masuk - res.data.data.keluar;
           } else {
-            this.data.akhir.kode_bahan = res.data.data.kode_bahan;
-            this.data.akhir.ukuran = res.data.data.ukuran;
-            this.data.akhir.unit = res.data.data.unit;
+            this.data.tujuan.kode_bahan = res.data.data.kode_bahan;
+            this.data.tujuan.nama_bahan = res.data.data.nama_bahan;
+            this.data.tujuan.ukuran = res.data.data.ukuran;
+            this.data.tujuan.unit = res.data.data.unit;
+            this.data.tujuan.stok = res.data.data.masuk - res.data.data.keluar;
           }
+          this.barang.dialog = false;
+          this.barang.staAwal = false;
+          this.barang.staTujuan = false;
         });
+    },
+    async createData() {
+      this.loading = true;
+      await axios
+        .post("konversi/create", this.data)
+        .then((res) => {
+          if (res.status != 200) {
+            swal("Gagal", res.data.error, "error");
+            return;
+          }
+          swal("Sukses", res.data.message, "success");
+          this.resetForm();
+        })
+        .catch((err) => {
+          swal("Sukses", err.data.error, "success");
+        });
+      this.loading = false;
+    },
+    resetForm() {
+      this.data.awal.kode_bahan = "";
+      this.data.awal.nama_bahan = "";
+      this.data.awal.ukuran = "";
+      this.data.awal.unit = "";
+      this.data.awal.stok = "";
+      this.data.tujuan.kode_bahan = "";
+      this.data.tujuan.nama_bahan = "";
+      this.data.tujuan.ukuran = "";
+      this.data.tujuan.unit = "";
+      this.data.tujuan.stok = "";
     },
   },
 };

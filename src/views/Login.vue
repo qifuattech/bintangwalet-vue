@@ -4,14 +4,19 @@
       <v-col cols="12" lg="6" md="8" sm="12">
         <v-card elevation="1" style="border-radius: 5px">
           <!-- <v-card-media> -->
-          <v-carousel hide-delimiters v-model="imagenumber" height="280">
+          <v-img
+            src="../assets/login-image.png"
+            max-height="250"
+            class="grey darken-4"
+          ></v-img>
+          <!-- <v-carousel hide-delimiters v-model="imagenumber" height="280">
             <v-carousel-item
               v-for="(item, i) in arrDataImage"
               :key="i"
               :src="item.uri"
             >
             </v-carousel-item>
-          </v-carousel>
+          </v-carousel> -->
           <!-- </v-card-media> -->
           <div class="px-12">
             <v-card-title primary-title class="d-flex justify-center">
@@ -180,7 +185,7 @@ export default {
       this.$store
         .dispatch("login", this.form)
         .then(() => {
-          console.log('login berhasil');
+          console.log("login berhasil");
           this.$router.push({ name: "Home" });
         })
         .catch((error) => {
