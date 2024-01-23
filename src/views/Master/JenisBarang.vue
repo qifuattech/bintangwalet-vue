@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <div class="text-h5">MASTER JENIS</div>
+        <h2>MASTER JENIS</h2>
       </v-col>
     </v-row>
     <v-divider></v-divider>
@@ -11,7 +11,11 @@
         <v-card outlined>
           <v-card-title class="d-flex justify-space-between">
             <div>
-              <v-btn color="success" class="mr-4" rounded @click="addData.dialog = true"
+              <v-btn
+                color="success"
+                class="mr-4"
+                rounded
+                @click="addData.dialog = true"
                 >Tambah Data<v-icon>mdi-plus-thick</v-icon></v-btn
               >
             </div>
@@ -26,13 +30,12 @@
               ></v-text-field>
             </div>
             <v-spacer></v-spacer>
-            
+
             <div>
               <v-btn color="primary" text @click="loadData()"
                 >REFRESH<v-icon>mdi-refresh</v-icon></v-btn
               >
             </div>
-            
           </v-card-title>
           <v-card-text>
             <v-card outlined>
@@ -54,7 +57,7 @@
                   <v-btn
                     color="primary"
                     text
-                    @click="loadUpdate(item.kode_bahan)"
+                    @click="loadUpdate(item.kd_jenis)"
                     v-else
                     ><v-icon>mdi-pen</v-icon></v-btn
                   >
@@ -73,9 +76,7 @@
       transition="dialog-transition"
     >
       <v-card class="pb-5">
-        <v-card-title>
-          Tambah Data
-        </v-card-title>
+        <v-card-title> Tambah Data </v-card-title>
         <v-divider></v-divider>
         <v-card-text class="mt-3">
           <v-form v-model="addData.isValid">
@@ -95,8 +96,19 @@
             ></v-text-field>
             <v-divider></v-divider>
             <div class="d-flex justify-end mt-2">
-              <v-btn color="success" @click="createData()"
+              <v-btn
+                color="success"
+                v-if="!staUpdate"
+                :disabled="!addData.isValid"
+                @click="createData()"
                 >SIMPAN<v-icon>mdi-floppy</v-icon></v-btn
+              >
+              <v-btn
+                v-else
+                color="warning"
+                :disabled="!addData.isValid"
+                @click="updateData()"
+                >UPDATE<v-icon>mdi-floppy</v-icon></v-btn
               >
             </div>
           </v-form>
@@ -117,9 +129,9 @@ export default {
     return {
       data: {
         headers: [
-          { text: "KODE", value: "kd_jenis", width:"5%", divider: true },
+          { text: "KODE", value: "kd_jenis", width: "5%", divider: true },
           { text: "NAMA", value: "nm_jenis", divider: true },
-          { text: "OPSI", value: "opsi", width:"5%" },
+          { text: "OPSI", value: "opsi", width: "5%" },
         ],
         items: [],
         loading: false,
@@ -134,6 +146,7 @@ export default {
         },
         loading: false,
       },
+      staUpdate: false,
     };
   },
   mounted() {
@@ -159,6 +172,30 @@ export default {
 
       this.data.loading = false;
     },
+    async loadUpdate(kode) {
+      this.data.loading = true;
+      this.staUpdate = true;
+      await axios
+        .post("master/jenisbarang/bykode", {
+          kode: kode,
+        })
+        .then((res) => {
+          if (res.status != 200) {
+            this.$notify({ type: "error", text: res.data.error });
+            return;
+          }
+          this.addData.dialog = true;
+          this.addData.form.kodeJenis = res.data.data.kd_jenis;
+          this.addData.form.namaJenis = res.data.data.nm_jenis;
+
+          this.$notify({ type: "success", text: res.data.message });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      this.data.loading = false;
+    },
     async createData() {
       this.addData.loading = true;
       await axios
@@ -170,15 +207,30 @@ export default {
           }
           this.resetForm();
           swal("Sukses", res.data.message, "success");
-          this.addData.dialog = false
-          this.loadData()
+          this.addData.dialog = false;
+          this.loadData();
         })
         .catch((err) => {
           swal("Gagal", err, "error");
         });
       this.addData.loading = false;
     },
+    async updateData() {
+      await axios
+        .post("master/jenisbarang/update", this.addData.form)
+        .then((res) => {
+          swal("Sukses", res.data.message, "success");
+          this.addData.dialog = false;
+          this.resetForm();
+          this.loadData();
+        })
+        .catch((err) => {
+          console.log(err);
+          swal("Gagal", "Ada Kesalahan Server (404)", "error");
+        });
+    },
     resetForm() {
+      this.staUpdate = false;
       this.addData.form = {
         kodeJenis: "",
         namaJenis: "",

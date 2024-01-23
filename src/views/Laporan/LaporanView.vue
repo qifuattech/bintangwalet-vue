@@ -108,6 +108,29 @@
               >
             </div>
           </v-card-text>
+          <v-divider></v-divider>
+          <v-card-text>
+            <!-- LAPORAN PIUTANG -->
+            <div class="d-flex justify-space-around align-center">
+              <div>Laporan Piutang</div>
+              <v-spacer></v-spacer>
+              <v-btn color="success" rounded @click="piutangDownload()"
+                >Excel<v-icon>mdi-table-arrow-down</v-icon></v-btn
+              >
+            </div>
+            <v-divider class="my-2"></v-divider>
+
+            <!-- LAPORAN HUTANG -->
+            <div class="d-flex justify-space-around align-center">
+              <div>Laporan Hutang</div>
+              <v-spacer></v-spacer>
+              <v-btn color="success" rounded @click="hutangDownload()"
+                >Excel<v-icon>mdi-table-arrow-down</v-icon></v-btn
+              >
+            </div>
+            <v-divider class="my-2"></v-divider>
+
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
