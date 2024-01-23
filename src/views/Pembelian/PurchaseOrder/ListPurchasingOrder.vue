@@ -259,7 +259,7 @@ export default {
       data: {
         headers: [
           { text: "NO. PO", value: "no_po", divider: true },
-          { text: "TGL. PO", value: "tgl_po", divider: true },
+          { text: "TGL. PO", value: "tgl_po", divider: true,width:"20%" },
           { text: "NAMA SUPPLIER", value: "nama", width: "40%", divider: true },
           {
             text: "JUMLAH (Rp)",
