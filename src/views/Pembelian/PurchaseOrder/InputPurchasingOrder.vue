@@ -131,15 +131,15 @@
               :value="formatNumber(subtotal())"
               background-color="blue-grey lighten-5"
             ></v-text-field>
-            <v-text-field
+            <!-- <v-text-field
               v-model="data.potongan"
               label="Potongan"
               class="text-h5"
               dense
               outlined
               background-color="light-blue lighten-5"
-            ></v-text-field>
-            <v-text-field
+            ></v-text-field> -->
+            <!-- <v-text-field
               name="name"
               label="Bayar"
               readonly
@@ -149,7 +149,7 @@
               :value="formatNumber(bayar())"
               background-color="blue-grey lighten-5"
             >
-            </v-text-field>
+            </v-text-field> -->
           </v-card-text>
         </v-card>
       </v-col>

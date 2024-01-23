@@ -267,12 +267,12 @@ export default {
             align: "right",
             divider: true,
           },
-          {
-            text: "POTONGAN (Rp)",
-            value: "diskon",
-            align: "right",
-            divider: true,
-          },
+          // {
+          //   text: "POTONGAN (Rp)",
+          //   value: "diskon",
+          //   align: "right",
+          //   divider: true,
+          // },
           // { text: "PPN", value: "ppn", align: "right", divider: true },
           // { text: "PPH", value: "pph", align: "right", divider: true },
           { text: "KETERANGAN", value: "keterangan", divider: true },

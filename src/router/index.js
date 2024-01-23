@@ -46,6 +46,9 @@ import ListReturnPenjualan from "../views/Penjualan/Return/ListReturn.vue";
 import InputAdjustment from "../views/Adjustment/InputAdjustment.vue";
 import ListAdjustment from "../views/Adjustment/ListAdjustment.vue";
 
+import InputKonversi from "../views/Konversi/InputKonversi.vue";
+import ListKonversi from "../views/Konversi/ListKonversi.vue";
+
 import InputKas from '../views/Kas/InputKas.vue'
 
 import Laporan from  '../views/Laporan/LaporanView.vue'
@@ -306,6 +309,22 @@ const routes = [
     path: "/adjustment/input",
     name: "InputAdjustment",
     component: InputAdjustment,
+    meta: {
+      auth: true,
+    },
+  },
+  {
+    path: "/konversi",
+    name: "ListKonversi",
+    component: ListKonversi,
+    meta: {
+      auth: true,
+    },
+  },
+  {
+    path: "/konversi/input",
+    name: "InputKonversi",
+    component: InputKonversi,
     meta: {
       auth: true,
     },
