@@ -250,7 +250,7 @@
       <v-card elevation="0">
         <v-col class="pa-0">
           <v-card-title class="py-1 d-flex justify-space-around">
-            <div class="text-h4"><strong>BINTANG WALET</strong></div>
+            <div class="text-h4"><strong>{{ $store.state.auth.company.name }}</strong></div>
             <v-spacer></v-spacer>
             <v-chip label outlined color="black" large
               ><div class="text-h5">NOTA PENJUALAN</div></v-chip

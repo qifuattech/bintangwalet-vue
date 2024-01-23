@@ -101,7 +101,7 @@
 
             <!-- LAPORAN PENJUALAN & LABA RUGI -->
             <div class="d-flex justify-space-around align-center">
-              <div>Laporan Laba Rugi</div>
+              <div>Laporan Laba Penjualan</div>
               <v-spacer></v-spacer>
               <v-btn color="success" rounded @click="labarugiDownload()"
                 >Excel<v-icon>mdi-table-arrow-down</v-icon></v-btn
@@ -129,7 +129,6 @@
               >
             </div>
             <v-divider class="my-2"></v-divider>
-
           </v-card-text>
         </v-card>
       </v-col>
@@ -488,6 +487,7 @@ export default {
           "UKURAN",
           "UNIT",
           "NAMA JENIS",
+          "JUMLAH",
           "HARGA JUAL",
           "DISKON",
           "SUBTOTAL",
@@ -506,6 +506,7 @@ export default {
             item.ukuran,
             item.unit,
             item.nm_jenis,
+            item.jumlah,
             item.rp_jual,
             item.diskon,
             item.subtotal,
@@ -521,7 +522,7 @@ export default {
           const a = document.createElement("a");
           a.href = url;
           a.download =
-            "Laporan Penerimaan Periode " +
+            "Laporan Penjualan Periode " +
             moment(String(this.periode.tanggal1)).format("DD-MM-YYYY") +
             " - " +
             moment(String(this.periode.tanggal2)).format("DD-MM-YYYY") +
@@ -551,7 +552,7 @@ export default {
         // SHEET KHUSUS REKAP
         const rekapsheet = workbook.addWorksheet("REKAP");
         const titleRow = rekapsheet.addRow([
-          "LAPORAN REKAP PENJUALAN & LABA RUGI - PERIODE : " +
+          "LAPORAN REKAP LABA PENJUALAN - PERIODE : " +
             moment(String(this.periode.tanggal1)).format("DD-MM-YYYY") +
             " s/d " +
             moment(String(this.periode.tanggal2)).format("DD-MM-YYYY"),
@@ -615,7 +616,7 @@ export default {
             "HARGA HPP",
             "TOTAL JUAL",
             "TOTAL HPP",
-            "LABA",
+            "LABA @",
             "TOTAL LABA",
           ]);
           headerRow.font = { bold: true };
@@ -652,7 +653,291 @@ export default {
           const a = document.createElement("a");
           a.href = url;
           a.download =
-            "Laporan Laba Rugi Periode " +
+            "Laporan Laba Penjualan Periode " +
+            moment(String(this.periode.tanggal1)).format("DD-MM-YYYY") +
+            " - " +
+            moment(String(this.periode.tanggal2)).format("DD-MM-YYYY") +
+            ".xlsx";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        });
+      } catch (error) {
+        console.error("Error fetching data from the API", error);
+      }
+    },
+
+    // PIUTANG DONWLOAD
+    async piutangDownload() {
+      try {
+        // Make an API request to fetch data (replace 'apiEndpoint' with your actual API endpoint)
+        const response = await axios.post("laporan/piutang", {
+          tanggal1: this.periode.tanggal1,
+          tanggal2: this.periode.tanggal2,
+        });
+        console.log(response.data.data);
+        // Create a new Excel workbook and worksheet
+        const workbook = new ExcelJS.Workbook();
+
+        // SHEET KHUSUS REKAP
+        const rekapsheet = workbook.addWorksheet("REKAP");
+        const titleRow = rekapsheet.addRow([
+          "LAPORAN REKAP PIUTANG - PERIODE : " +
+            moment(String(this.periode.tanggal1)).format("DD-MM-YYYY") +
+            " s/d " +
+            moment(String(this.periode.tanggal2)).format("DD-MM-YYYY"),
+        ]);
+        titleRow.font = { bold: true };
+        rekapsheet.addRow([""]);
+        const headerRow = rekapsheet.addRow([
+          "KODE",
+          "NAMA",
+          "ALAMAT",
+          "PIUTANG",
+          "FAKTUR <30",
+          "FAKTUR 31-45",
+          "FAKTUR 46-60",
+          "FAKTUR 61-90",
+          "FAKTUR >91",
+          "SISA",
+          "TOTAL",
+          "TEMPO",
+        ]);
+        headerRow.font = { bold: true };
+        response.data.rekap.forEach((item) => {
+          rekapsheet.addRow([
+            item.kd_customer,
+            item.NAMA,
+            item.ALAMAT,
+            item.N1 + item.N2 + item.N3 + item.N4 + item.N5,
+            item.N1,
+            item.N2,
+            item.N3,
+            item.N4,
+            item.N5,
+            item.NDP,
+            item.N1 + item.N2 + item.N3 + item.N4 + item.N5,
+            item.ntempo,
+          ]);
+        });
+        // END SHEET KHUSUS REKAP
+
+        // const groupJenis = [
+        //   ...new Set(response.data.data.map((item) => item.nm_jenis)),
+        // ];
+        // let worksheet = "";
+        // let filterData = [];
+        // for (let i = 0; i < groupJenis.length; i++) {
+        //   worksheet = workbook.addWorksheet(groupJenis[i]);
+
+        //   filterData = response.data.data.filter(function (el) {
+        //     return el.nm_jenis == groupJenis[i];
+        //   });
+
+        //   // TITLE
+        //   const titleRow = worksheet.addRow([
+        //     "LAPORAN PENJUALAN & LABA RUGI - PERIODE : " +
+        //       moment(String(this.periode.tanggal1)).format("DD-MM-YYYY") +
+        //       " s/d " +
+        //       moment(String(this.periode.tanggal2)).format("DD-MM-YYYY"),
+        //   ]);
+        //   titleRow.font = { bold: true };
+        //   worksheet.addRow([""]);
+
+        //   // HEADER
+        //   const headerRow = worksheet.addRow([
+        //     "TGL NOTA",
+        //     "NO NOTA",
+        //     "CUSTOMER",
+        //     "PEMBAYARAN",
+        //     "KODE",
+        //     "NAMA BARANG",
+        //     "JENIS",
+        //     "JUMLAH",
+        //     "HARGA JUAL",
+        //     "HARGA HPP",
+        //     "TOTAL JUAL",
+        //     "TOTAL HPP",
+        //     "LABA @",
+        //     "TOTAL LABA",
+        //   ]);
+        //   headerRow.font = { bold: true };
+
+        //   //FETCH DETAIL
+        //   filterData.forEach((item) => {
+        //     worksheet.addRow([
+        //       item.tgl_update,
+        //       item.no_bukti,
+        //       item.nama,
+        //       item.pembayaran,
+        //       item.kode_bahan,
+        //       item.nama_bahan,
+        //       item.nm_jenis,
+        //       item.jumlah,
+        //       item.rp_jual,
+        //       item.harga,
+        //       item.tot_jual,
+        //       item.tot_hpp,
+        //       item.laba,
+        //       item.tot_laba,
+        //     ]);
+        //   });
+        // }
+
+        // Add data to the worksheet
+
+        // Save the workbook to a file or download it
+        workbook.xlsx.writeBuffer().then((buffer) => {
+          const blob = new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download =
+            "Laporan Laba Penjualan Periode " +
+            moment(String(this.periode.tanggal1)).format("DD-MM-YYYY") +
+            " - " +
+            moment(String(this.periode.tanggal2)).format("DD-MM-YYYY") +
+            ".xlsx";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        });
+      } catch (error) {
+        console.error("Error fetching data from the API", error);
+      }
+    },
+
+    // HUTANG DOWNLOAD
+    async hutangDownload() {
+      try {
+        // Make an API request to fetch data (replace 'apiEndpoint' with your actual API endpoint)
+        const response = await axios.post("laporan/hutang", {
+          tanggal1: this.periode.tanggal1,
+          tanggal2: this.periode.tanggal2,
+        });
+        console.log(response.data.data);
+        // Create a new Excel workbook and worksheet
+        const workbook = new ExcelJS.Workbook();
+
+        // SHEET KHUSUS REKAP
+        const rekapsheet = workbook.addWorksheet("REKAP");
+        const titleRow = rekapsheet.addRow([
+          "LAPORAN REKAP PIUTANG - PERIODE : " +
+            moment(String(this.periode.tanggal1)).format("DD-MM-YYYY") +
+            " s/d " +
+            moment(String(this.periode.tanggal2)).format("DD-MM-YYYY"),
+        ]);
+        titleRow.font = { bold: true };
+        rekapsheet.addRow([""]);
+        const headerRow = rekapsheet.addRow([
+          "KODE",
+          "NAMA",
+          "ALAMAT",
+          "HUTANG",
+          "FAKTUR <30",
+          "FAKTUR 31-45",
+          "FAKTUR 46-60",
+          "FAKTUR 61-90",
+          "FAKTUR >91",
+          "SISA",
+          "TOTAL",
+        ]);
+        headerRow.font = { bold: true };
+        response.data.rekap.forEach((item) => {
+          rekapsheet.addRow([
+            item.kd_customer,
+            item.NAMA,
+            item.ALAMAT,
+            item.N1 + item.N2 + item.N3 + item.N4 + item.N5,
+            item.N1,
+            item.N2,
+            item.N3,
+            item.N4,
+            item.N5,
+            item.NDP,
+            item.N1 + item.N2 + item.N3 + item.N4 + item.N5,
+          ]);
+        });
+        // END SHEET KHUSUS REKAP
+
+        // const groupJenis = [
+        //   ...new Set(response.data.data.map((item) => item.nm_jenis)),
+        // ];
+        // let worksheet = "";
+        // let filterData = [];
+        // for (let i = 0; i < groupJenis.length; i++) {
+        //   worksheet = workbook.addWorksheet(groupJenis[i]);
+
+        //   filterData = response.data.data.filter(function (el) {
+        //     return el.nm_jenis == groupJenis[i];
+        //   });
+
+        //   // TITLE
+        //   const titleRow = worksheet.addRow([
+        //     "LAPORAN PENJUALAN & LABA RUGI - PERIODE : " +
+        //       moment(String(this.periode.tanggal1)).format("DD-MM-YYYY") +
+        //       " s/d " +
+        //       moment(String(this.periode.tanggal2)).format("DD-MM-YYYY"),
+        //   ]);
+        //   titleRow.font = { bold: true };
+        //   worksheet.addRow([""]);
+
+        //   // HEADER
+        //   const headerRow = worksheet.addRow([
+        //     "TGL NOTA",
+        //     "NO NOTA",
+        //     "CUSTOMER",
+        //     "PEMBAYARAN",
+        //     "KODE",
+        //     "NAMA BARANG",
+        //     "JENIS",
+        //     "JUMLAH",
+        //     "HARGA JUAL",
+        //     "HARGA HPP",
+        //     "TOTAL JUAL",
+        //     "TOTAL HPP",
+        //     "LABA @",
+        //     "TOTAL LABA",
+        //   ]);
+        //   headerRow.font = { bold: true };
+
+        //   //FETCH DETAIL
+        //   filterData.forEach((item) => {
+        //     worksheet.addRow([
+        //       item.tgl_update,
+        //       item.no_bukti,
+        //       item.nama,
+        //       item.pembayaran,
+        //       item.kode_bahan,
+        //       item.nama_bahan,
+        //       item.nm_jenis,
+        //       item.jumlah,
+        //       item.rp_jual,
+        //       item.harga,
+        //       item.tot_jual,
+        //       item.tot_hpp,
+        //       item.laba,
+        //       item.tot_laba,
+        //     ]);
+        //   });
+        // }
+
+        // Add data to the worksheet
+
+        // Save the workbook to a file or download it
+        workbook.xlsx.writeBuffer().then((buffer) => {
+          const blob = new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download =
+            "Laporan Laba Penjualan Periode " +
             moment(String(this.periode.tanggal1)).format("DD-MM-YYYY") +
             " - " +
             moment(String(this.periode.tanggal2)).format("DD-MM-YYYY") +
