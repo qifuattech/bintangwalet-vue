@@ -120,8 +120,22 @@
                 :search="data.search"
                 dense
               >
+                <template v-slot:[`item.jumlah`]="{ item }">
+                  {{ formatNumber(item.jumlah) }}
+                </template>
+                <template v-slot:[`item.stok`]="{ item }">
+                  {{ formatNumber(item.stok)
+                  }}<v-chip
+                    small
+                    class="ml-2"
+                    :color="item.jumlah <= item.stok ? 'success' : 'error'"
+                  ></v-chip>
+                </template>
               </v-data-table>
             </v-card>
+            <div v-if="!staStok" class="d-flex justify-end mt-2">
+              Ada stok yang tidak cukup
+            </div>
             <div class="d-flex justify-end mt-4">
               <v-btn
                 color="primary"
@@ -138,6 +152,17 @@
                 v-if="saved.status"
                 ><v-icon class="mr-2">mdi-printer-check</v-icon>Cetak
                 Invoice</v-btn
+              >
+              <v-btn
+                color="warning"
+                @click="batalPesanan()"
+                v-if="!staStok"
+                class="mr-2"
+                ><v-icon class="mr-2">mdi-close-thick</v-icon> BATAL
+                PESANAN</v-btn
+              >
+              <v-btn @click="resetAll()" class="mr-2"
+                ><v-icon class="mr-2">mdi-refresh-circle</v-icon> RESET</v-btn
               >
               <v-btn color="success" @click="create()" :disabled="!isValid"
                 ><v-icon class="mr-2">mdi-floppy</v-icon> SIMPAN</v-btn
@@ -243,7 +268,9 @@
                 <tr>
                   <td align="right" colspan="3">Total Qty</td>
                   <td align="right">
-                    <strong> {{ formatNumber(suratjalan.items.tot_qty)}}</strong>
+                    <strong>
+                      {{ formatNumber(suratjalan.items.tot_qty) }}</strong
+                    >
                   </td>
                 </tr>
               </tbody>
@@ -390,7 +417,8 @@ export default {
         headers: [
           { text: "KODE BARANG", value: "kode_bahan", divider: true },
           { text: "NAMA BARANG", value: "nama_bahan", divider: true },
-          { text: "JUMLAH", value: "jumlah" },
+          { text: "JUMLAH", value: "jumlah", divider: true, align: "right" },
+          { text: "STOK", value: "stok", align: "right" },
         ],
         items: [],
         loading: false,
@@ -507,6 +535,14 @@ export default {
           this.data.total_net = res.data.data.total_net;
         });
     },
+    async batalPesanan() {
+      await axios.post("penjualan/transaksi/batal", {
+        
+      }) 
+      .then((res) => {
+        console.log(res);
+      })
+    },
     async create() {
       await axios.post("penjualan/pengiriman/create", this.data).then((res) => {
         if (res.status != 200) {
@@ -598,14 +634,35 @@ export default {
       this.data.noTransaksi = "";
       this.data.items = [];
     },
-
   },
   computed: {
+    staStok() {
+      let a = 0;
+      for (let i = 0; i < this.data.items.length; i++) {
+        if (this.data.items[i].jumlah > this.data.items[i].stok) {
+          console.log(this.data.items[i].jumlah <= this.data.items[i].stok);
+          a++;
+        }
+      }
+      if (a == 0) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     isValid() {
+      let a = 0;
+      for (let i = 0; i < this.data.items.length; i++) {
+        if (this.data.items[i].jumlah > this.data.items[i].stok) {
+          console.log(this.data.items[i].jumlah <= this.data.items[i].stok);
+          a++;
+        }
+      }
       if (
         this.data.items.length > 0 &&
         this.data.kodeCustomer != "" &&
-        this.data.noTransaksi != ""
+        this.data.noTransaksi != "" &&
+        a == 0
       ) {
         return true;
       } else {

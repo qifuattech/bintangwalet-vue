@@ -6,6 +6,7 @@ export default {
         user: null,
         isLoggedIn: false,
         menu: [],
+        company: "",
     },
     mutations: {
         set_user(state, data) {
@@ -22,6 +23,9 @@ export default {
         reset_menu(state) {
             state.menu = null
         },
+        set_company(state, data) {
+            state.company = data
+        }
     },
     getters: {
         isLoggedIn(state) {
@@ -32,9 +36,18 @@ export default {
         },
         menu(state) {
             return state.menu
+        },
+        company(state) {
+            return state.company
         }
     },
     actions: {
+        async get_company({ commit }) {
+            await axios.post('company')
+                .then((res) => {
+                    commit('set_company', res.data.data)
+                })
+        },
         login({ dispatch, commit }, data) {
             return new Promise((resolve, reject) => {
                 axios.post('login', data)
@@ -59,13 +72,13 @@ export default {
             try {
                 let response = await axios.get('user')
                 commit('set_user', response.data.data)
-                axios.get("menu/"+response.data.data.name+"/byusername")
-                .then((res) => {
-                    commit('set_menu', res.data.data)
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
+                axios.get("menu/" + response.data.data.name + "/byusername")
+                    .then((res) => {
+                        commit('set_menu', res.data.data)
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
             } catch (error) {
                 commit('reset_user')
                 removeHeaderToken()

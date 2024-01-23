@@ -5,7 +5,7 @@
         <h1>SELAMAT DATANG DI APLIKASI WEB - POS</h1>
         <v-divider></v-divider>
         <div>
-          <h2>...Description...</h2>
+          <h2>{{ $store.state.auth.company.group }}</h2>
         </div>
       </v-col>
     </v-row>

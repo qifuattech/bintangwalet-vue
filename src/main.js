@@ -23,7 +23,8 @@ Vue.component("DownloadExcel", JsonExcel);
 // axios.defaults.baseURL = 'http://192.168.2.10/api-it-dev/api'
 // axios.defaults.baseURL = 'http://localhost:8000/api'
 // axios.defaults.baseURL = 'http://192.168.1.5:8000/api'
-axios.defaults.baseURL = 'https://bintangwalet-api.qifuattech.my.id/public/api'
+// axios.defaults.baseURL = 'https://bintangwalet-api.qifuattech.my.id/public/api'
+axios.defaults.baseURL = 'https://api.sinarpanganfood.com/public/api'
 
 // import 'vue-toast-notification/dist/theme-sugar.css';
 // import './registerServiceWorker'
